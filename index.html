@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>50 Pages of Fright</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -17,7 +20,58 @@
             color: #e8e8e8;
             overflow: hidden;
             height: 100vh;
-            position: relative;
+            width: 100vw;
+            position: fixed;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Orientation warning for mobile */
+        #orientation-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            flex-direction: column;
+        }
+
+        #orientation-warning .warning-icon {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: #666;
+            animation: rotate 3s infinite linear;
+        }
+
+        #orientation-warning .warning-text {
+            font-size: 1.2rem;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(90deg); }
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            #orientation-warning {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+            #orientation-warning {
+                display: none;
+            }
         }
 
         /* Grain overlay */
@@ -47,14 +101,16 @@
             align-items: center;
             z-index: 10;
             transition: opacity 1.5s ease;
+            padding: 1rem;
         }
 
         .loading-message {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 4vw, 1.2rem);
             color: #aaa;
             margin-bottom: 2rem;
             text-align: center;
             opacity: 0.9;
+            padding: 0 1rem;
         }
 
         .loading-dots {
@@ -83,10 +139,13 @@
         .warning-text {
             position: absolute;
             bottom: 3rem;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
             color: #555;
             letter-spacing: 1px;
             animation: flicker 8s infinite;
+            text-align: center;
+            padding: 0 1rem;
+            width: 100%;
         }
 
         @keyframes flicker {
@@ -97,16 +156,50 @@
             93% { opacity: 1; }
         }
 
-        /* Video background */
-        #background-video {
+        /* Video container for mobile rotation */
+        #video-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Video background - responsive for all devices */
+        #background-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: cover;
             opacity: 0.7;
             z-index: 1;
+        }
+
+        /* Mobile-specific video orientation */
+        @media (max-width: 768px) and (orientation: landscape) {
+            #background-video {
+                /* For landscape on mobile, we rotate the video 90 degrees */
+                transform: translate(-50%, -50%) rotate(90deg);
+                width: 100vh; /* Swap width and height */
+                height: 100vw; /* Swap width and height */
+                min-width: 100vh;
+                min-height: 100vw;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: portrait) {
+            #background-video {
+                transform: translate(-50%, -50%);
+                width: 100%;
+                height: 100%;
+            }
         }
 
         .video-overlay {
@@ -129,16 +222,21 @@
             position: fixed;
             bottom: 2rem;
             left: 2rem;
-            font-size: 0.8rem;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
             color: #444;
             letter-spacing: 1px;
             z-index: 4;
             opacity: 0.5;
             transition: opacity 0.3s;
+            pointer-events: none;
         }
 
-        .music-indicator:hover {
-            opacity: 0.8;
+        @media (max-width: 768px) {
+            .music-indicator {
+                bottom: 1rem;
+                left: 1rem;
+                font-size: 0.7rem;
+            }
         }
 
         /* Main content */
@@ -150,22 +248,25 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
+            padding: clamp(1rem, 3vw, 2rem);
             opacity: 0;
             transition: opacity 2s ease;
             max-width: 800px;
             margin: 0 auto;
             text-align: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .title {
-            font-size: 3.5rem;
+            font-size: clamp(2rem, 8vw, 3.5rem);
             font-weight: normal;
             letter-spacing: 3px;
             margin-bottom: 1.5rem;
             color: #f0f0f0;
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
             animation: titleAppear 3s ease-out;
+            line-height: 1.2;
         }
 
         @keyframes titleAppear {
@@ -174,9 +275,9 @@
         }
 
         .subtitle {
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             color: #aaa;
-            margin-bottom: 3rem;
+            margin-bottom: clamp(2rem, 5vw, 3rem);
             font-style: italic;
             letter-spacing: 1px;
             animation: fadeIn 4s ease-out;
@@ -189,31 +290,31 @@
         }
 
         .intro-text {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
             line-height: 1.8;
-            margin-bottom: 3rem;
+            margin-bottom: clamp(2rem, 5vw, 3rem);
             color: #ccc;
             animation: fadeIn 5s ease-out;
         }
 
         .intro-text p {
-            margin-bottom: 1.5rem;
+            margin-bottom: clamp(1rem, 3vw, 1.5rem);
         }
 
         .warning-note {
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 3vw, 1rem);
             color: #888;
             font-style: italic;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
+            margin-top: clamp(1rem, 3vw, 2rem);
+            padding-top: clamp(1rem, 3vw, 1.5rem);
             border-top: 1px solid #333;
             animation: fadeIn 6s ease-out;
         }
 
         /* Start button */
         .start-button {
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
+            padding: clamp(0.8rem, 3vw, 1rem) clamp(2rem, 6vw, 3rem);
+            font-size: clamp(1rem, 3.5vw, 1.2rem);
             background: transparent;
             color: #e8e8e8;
             border: 1px solid #555;
@@ -226,9 +327,12 @@
             overflow: hidden;
             margin-top: 1rem;
             animation: fadeIn 7s ease-out;
+            min-height: 50px;
+            min-width: 200px;
+            touch-action: manipulation;
         }
 
-        .start-button:hover {
+        .start-button:hover, .start-button:active {
             border-color: #888;
             color: #fff;
             background: rgba(255, 255, 255, 0.05);
@@ -247,69 +351,104 @@
             transition: left 0.5s ease;
         }
 
-        .start-button:hover::after {
+        .start-button:hover::after, .start-button:active::after {
             left: 100%;
         }
 
         .page-counter {
             position: absolute;
-            bottom: 2rem;
-            right: 2rem;
-            font-size: 0.9rem;
+            bottom: clamp(1rem, 3vw, 2rem);
+            right: clamp(1rem, 3vw, 2rem);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
             color: #444;
             letter-spacing: 1px;
             z-index: 4;
         }
 
-        /* Volume control */
+        /* Volume control - hidden on mobile by default */
         .volume-control {
             position: fixed;
-            top: 2rem;
-            right: 2rem;
+            top: clamp(1rem, 3vw, 2rem);
+            right: clamp(1rem, 3vw, 2rem);
             z-index: 4;
             opacity: 0.3;
             transition: opacity 0.3s;
             cursor: pointer;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .volume-control:hover {
+        .volume-control:hover, .volume-control:active {
             opacity: 0.8;
         }
 
+        @media (max-width: 768px) {
+            .volume-control {
+                top: 0.5rem;
+                right: 0.5rem;
+                width: 36px;
+                height: 36px;
+                padding: 6px;
+            }
+        }
+
         .volume-icon {
-            width: 24px;
-            height: 24px;
+            width: 100%;
+            height: 100%;
             filter: brightness(0.7);
         }
 
-        /* Responsive */
+        /* Mobile-specific adjustments */
         @media (max-width: 768px) {
-            .title {
-                font-size: 2.5rem;
-            }
-            
-            .intro-text {
-                font-size: 1rem;
+            body {
+                overflow-y: auto;
             }
             
             #main-content {
-                padding: 1rem;
+                justify-content: flex-start;
+                padding-top: clamp(3rem, 10vw, 5rem);
+                overflow-y: auto;
             }
             
-            .music-indicator {
-                bottom: 1rem;
-                left: 1rem;
-                font-size: 0.7rem;
+            .start-button {
+                min-height: 44px; /* Apple recommended minimum touch target */
+                min-width: 44px;
             }
-            
-            .volume-control {
-                top: 1rem;
-                right: 1rem;
-            }
+        }
+
+        /* Prevent text selection on mobile */
+        .no-select {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        #main-content::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
     </style>
 </head>
-<body>
+<body class="no-select">
+    <!-- Orientation warning for mobile portrait -->
+    <div id="orientation-warning">
+        <div class="warning-icon">↻</div>
+        <div class="warning-text">
+            Please rotate your device to landscape mode<br>
+            for the optimal experience
+        </div>
+    </div>
+
     <!-- Loading screen -->
     <div id="loading-screen">
         <div class="loading-message" id="loading-text">Preparing the pages...</div>
@@ -322,11 +461,13 @@
         <div class="warning-text">Do not refresh.</div>
     </div>
 
-    <!-- Video background -->
-    <video id="background-video" autoplay muted loop playsinline>
-        <source src="Assets/back.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
+    <!-- Video container -->
+    <div id="video-container">
+        <video id="background-video" autoplay muted loop playsinline webkit-playsinline>
+            <source src="Assets/back.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
     
     <!-- Background music -->
     <audio id="background-music" autoplay loop>
@@ -379,6 +520,7 @@
             const volumeControl = document.getElementById('volume-control');
             const volumeIcon = document.querySelector('#volume-icon-path');
             const musicIndicator = document.getElementById('music-indicator');
+            const orientationWarning = document.getElementById('orientation-warning');
             
             const loadingMessages = [
                 "Preparing the pages...",
@@ -393,6 +535,31 @@
             let audioReady = false;
             let contentRevealed = false;
             let isMuted = false;
+            let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Check orientation on mobile
+            function checkOrientation() {
+                if (isMobile) {
+                    if (window.innerWidth < window.innerHeight) {
+                        // Portrait mode on mobile
+                        orientationWarning.style.display = 'flex';
+                        mainContent.style.display = 'none';
+                        loadingScreen.style.display = 'none';
+                    } else {
+                        // Landscape mode on mobile
+                        orientationWarning.style.display = 'none';
+                        mainContent.style.display = 'flex';
+                        loadingScreen.style.display = 'flex';
+                    }
+                }
+            }
+            
+            // Initial orientation check
+            checkOrientation();
+            
+            // Listen for orientation changes
+            window.addEventListener('resize', checkOrientation);
+            window.addEventListener('orientationchange', checkOrientation);
             
             // Function to handle video loop
             function setupVideoLoop() {
@@ -408,6 +575,27 @@
                         video.play();
                     }, 1000);
                 });
+                
+                // Adjust video for mobile orientation
+                function adjustVideoForMobile() {
+                    if (isMobile) {
+                        const videoContainer = document.getElementById('video-container');
+                        if (window.innerWidth < window.innerHeight) {
+                            // Portrait - hide video
+                            videoContainer.style.display = 'none';
+                        } else {
+                            // Landscape - show rotated video
+                            videoContainer.style.display = 'block';
+                            video.style.transform = 'translate(-50%, -50%) rotate(90deg)';
+                            video.style.width = '100vh';
+                            video.style.height = '100vw';
+                        }
+                    }
+                }
+                
+                // Adjust video on resize
+                window.addEventListener('resize', adjustVideoForMobile);
+                adjustVideoForMobile();
             }
             
             // Setup video loop
@@ -443,10 +631,22 @@
             });
             
             // Force video to play (autoplay policies)
-            video.play().catch(function(error) {
-                console.log("Video autoplay failed:", error);
-                // Show play button or handle interaction
-            });
+            const playVideo = () => {
+                video.play().then(() => {
+                    console.log("Video playing successfully");
+                }).catch(error => {
+                    console.log("Video autoplay failed:", error);
+                    // On mobile, we might need user interaction
+                    if (isMobile) {
+                        document.addEventListener('touchstart', function playVideoOnTouch() {
+                            video.play();
+                            document.removeEventListener('touchstart', playVideoOnTouch);
+                        }, { once: true });
+                    }
+                });
+            };
+            
+            playVideo();
             
             // Force audio to play (autoplay policies)
             function startAudio() {
@@ -456,13 +656,16 @@
                 }).catch(error => {
                     console.log("Audio autoplay failed, waiting for interaction:", error);
                     // Audio will start after user interaction
-                    document.addEventListener('click', function startAudioOnInteraction() {
+                    const startAudioOnInteraction = () => {
                         audio.play().then(() => {
                             audioReady = true;
                             checkAllLoaded();
-                            document.removeEventListener('click', startAudioOnInteraction);
                         });
-                    }, { once: true });
+                    };
+                    
+                    // Use both click and touch events for mobile compatibility
+                    document.addEventListener('click', startAudioOnInteraction, { once: true });
+                    document.addEventListener('touchstart', startAudioOnInteraction, { once: true });
                 });
             }
             
@@ -478,7 +681,9 @@
                         
                         setTimeout(() => {
                             loadingScreen.style.display = 'none';
-                            revealContent();
+                            if (!orientationWarning.style.display || orientationWarning.style.display === 'none') {
+                                revealContent();
+                            }
                         }, 1500);
                     }, 1500);
                 }
@@ -492,7 +697,9 @@
                     
                     setTimeout(() => {
                         loadingScreen.style.display = 'none';
-                        revealContent();
+                        if (!orientationWarning.style.display || orientationWarning.style.display === 'none') {
+                            revealContent();
+                        }
                     }, 1500);
                 }
             }, 10000);
@@ -552,10 +759,23 @@
                 }
             }
             
-            // Start button click handler
+            // Start button click handler with touch support
             beginBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                
+                handleStartButton();
+            });
+            
+            // Touch support for mobile
+            beginBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+            });
+            
+            beginBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                handleStartButton();
+            });
+            
+            function handleStartButton() {
                 // Add some tension with delayed response
                 beginBtn.style.opacity = '0.7';
                 beginBtn.style.pointerEvents = 'none';
@@ -579,7 +799,7 @@
                     // Redirect to first page
                     window.location.href = "pages/1.html";
                 }, 1500);
-            });
+            }
             
             // Video error handling
             video.addEventListener('error', function() {
@@ -601,10 +821,41 @@
                 }
             });
             
+            // Handle mobile-specific behaviors
+            if (isMobile) {
+                // Prevent zoom on double-tap
+                document.addEventListener('touchmove', function(e) {
+                    if (e.scale !== 1) { e.preventDefault(); }
+                }, { passive: false });
+                
+                // Prevent pull-to-refresh on mobile
+                document.addEventListener('touchstart', function(e) {
+                    if (e.touches.length !== 1) return;
+                    const touch = e.touches[0];
+                    this.initialY = touch.pageY;
+                });
+                
+                document.addEventListener('touchmove', function(e) {
+                    if (e.touches.length !== 1) return;
+                    const touch = e.touches[0];
+                    const diff = touch.pageY - this.initialY;
+                    if (diff > 0 && window.scrollY === 0) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                // Add a subtle vibration on button press for mobile (if supported)
+                beginBtn.addEventListener('touchstart', function() {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                });
+            }
+            
             // Ensure video keeps playing even if tab is inactive
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden) {
-                    // Tab is hidden, pause video
+                    // Tab is hidden, pause video and audio
                     video.pause();
                     audio.pause();
                 } else {
@@ -612,6 +863,12 @@
                     video.play();
                     audio.play();
                 }
+            });
+            
+            // Prevent context menu on long press
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
             });
         });
     </script>
