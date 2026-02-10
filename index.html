@@ -119,6 +119,28 @@
             z-index: 2;
         }
 
+        /* Background music */
+        #background-music {
+            display: none;
+        }
+
+        /* Music indicator */
+        .music-indicator {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            font-size: 0.8rem;
+            color: #444;
+            letter-spacing: 1px;
+            z-index: 4;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .music-indicator:hover {
+            opacity: 0.8;
+        }
+
         /* Main content */
         #main-content {
             position: relative;
@@ -239,6 +261,27 @@
             z-index: 4;
         }
 
+        /* Volume control */
+        .volume-control {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 4;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+
+        .volume-control:hover {
+            opacity: 0.8;
+        }
+
+        .volume-icon {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0.7);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .title {
@@ -251,6 +294,17 @@
             
             #main-content {
                 padding: 1rem;
+            }
+            
+            .music-indicator {
+                bottom: 1rem;
+                left: 1rem;
+                font-size: 0.7rem;
+            }
+            
+            .volume-control {
+                top: 1rem;
+                right: 1rem;
             }
         }
     </style>
@@ -273,10 +327,24 @@
         <source src="Assets/back.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
+    
+    <!-- Background music -->
+    <audio id="background-music" autoplay loop>
+        <source src="Assets/back.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
     <div class="video-overlay"></div>
 
     <!-- Grain effect -->
     <div class="grain-overlay"></div>
+
+    <!-- Volume control -->
+    <div class="volume-control" id="volume-control">
+        <svg class="volume-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path id="volume-icon-path" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </div>
 
     <!-- Main content -->
     <div id="main-content">
@@ -297,6 +365,7 @@
         <button class="start-button" id="begin-btn">Begin Reading</button>
         
         <div class="page-counter">Page 0/50</div>
+        <div class="music-indicator" id="music-indicator">Ambience: Active</div>
     </div>
 
     <script>
@@ -304,22 +373,49 @@
             const loadingScreen = document.getElementById('loading-screen');
             const mainContent = document.getElementById('main-content');
             const video = document.getElementById('background-video');
+            const audio = document.getElementById('background-music');
             const beginBtn = document.getElementById('begin-btn');
             const loadingText = document.getElementById('loading-text');
+            const volumeControl = document.getElementById('volume-control');
+            const volumeIcon = document.querySelector('#volume-icon-path');
+            const musicIndicator = document.getElementById('music-indicator');
+            
             const loadingMessages = [
                 "Preparing the pages...",
                 "Loading archived material...",
                 "Calibrating atmosphere...",
-                "Establishing connection..."
+                "Establishing connection...",
+                "Initializing ambience..."
             ];
             
             let messageIndex = 0;
             let videoReady = false;
+            let audioReady = false;
             let contentRevealed = false;
+            let isMuted = false;
+            
+            // Function to handle video loop
+            function setupVideoLoop() {
+                video.addEventListener('ended', function() {
+                    this.currentTime = 0;
+                    this.play();
+                });
+                
+                video.addEventListener('error', function() {
+                    console.log("Video error occurred, attempting to reload...");
+                    setTimeout(() => {
+                        video.load();
+                        video.play();
+                    }, 1000);
+                });
+            }
+            
+            // Setup video loop
+            setupVideoLoop();
             
             // Change loading message every few seconds
             const loadingInterval = setInterval(() => {
-                if (!videoReady) {
+                if (!videoReady || !audioReady) {
                     messageIndex = (messageIndex + 1) % loadingMessages.length;
                     loadingText.style.opacity = '0';
                     
@@ -330,10 +426,50 @@
                 }
             }, 3000);
             
-            // Check if video is ready to play
+            // Check if video is ready
             video.addEventListener('canplaythrough', function() {
                 if (!videoReady) {
                     videoReady = true;
+                    checkAllLoaded();
+                }
+            });
+            
+            // Check if audio is ready
+            audio.addEventListener('canplaythrough', function() {
+                if (!audioReady) {
+                    audioReady = true;
+                    checkAllLoaded();
+                }
+            });
+            
+            // Force video to play (autoplay policies)
+            video.play().catch(function(error) {
+                console.log("Video autoplay failed:", error);
+                // Show play button or handle interaction
+            });
+            
+            // Force audio to play (autoplay policies)
+            function startAudio() {
+                audio.play().then(() => {
+                    audioReady = true;
+                    checkAllLoaded();
+                }).catch(error => {
+                    console.log("Audio autoplay failed, waiting for interaction:", error);
+                    // Audio will start after user interaction
+                    document.addEventListener('click', function startAudioOnInteraction() {
+                        audio.play().then(() => {
+                            audioReady = true;
+                            checkAllLoaded();
+                            document.removeEventListener('click', startAudioOnInteraction);
+                        });
+                    }, { once: true });
+                });
+            }
+            
+            startAudio();
+            
+            function checkAllLoaded() {
+                if (videoReady && audioReady && !contentRevealed) {
                     clearInterval(loadingInterval);
                     
                     // Small delay before revealing content
@@ -346,12 +482,11 @@
                         }, 1500);
                     }, 1500);
                 }
-            });
+            }
             
-            // Fallback in case video takes too long
+            // Fallback in case media takes too long
             setTimeout(() => {
-                if (!videoReady) {
-                    videoReady = true;
+                if (!contentRevealed) {
                     clearInterval(loadingInterval);
                     loadingScreen.style.opacity = '0';
                     
@@ -386,6 +521,34 @@
                             }, 100);
                         }
                     }, 5000);
+                    
+                    // Update music indicator
+                    updateMusicIndicator();
+                }
+            }
+            
+            // Volume control
+            volumeControl.addEventListener('click', function() {
+                isMuted = !isMuted;
+                audio.muted = isMuted;
+                
+                // Update icon
+                if (isMuted) {
+                    volumeIcon.setAttribute('d', 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z');
+                } else {
+                    volumeIcon.setAttribute('d', 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z');
+                }
+                
+                updateMusicIndicator();
+            });
+            
+            function updateMusicIndicator() {
+                if (isMuted) {
+                    musicIndicator.textContent = "Ambience: Muted";
+                    musicIndicator.style.opacity = "0.3";
+                } else {
+                    musicIndicator.textContent = "Ambience: Active";
+                    musicIndicator.style.opacity = "0.5";
                 }
             }
             
@@ -397,6 +560,16 @@
                 beginBtn.style.opacity = '0.7';
                 beginBtn.style.pointerEvents = 'none';
                 beginBtn.textContent = "Preparing...";
+                
+                // Fade out audio gradually
+                const fadeAudio = setInterval(() => {
+                    if (audio.volume > 0.05) {
+                        audio.volume -= 0.05;
+                    } else {
+                        audio.volume = 0;
+                        clearInterval(fadeAudio);
+                    }
+                }, 50);
                 
                 // Subtle fade out effect
                 mainContent.style.transition = 'opacity 1.5s ease';
@@ -410,22 +583,34 @@
             
             // Video error handling
             video.addEventListener('error', function() {
-                // Fallback background if video fails
-                document.body.style.background = '#000';
-                video.style.display = 'none';
-                
+                console.log("Video failed to load");
+                // Continue without video
                 if (!videoReady) {
                     videoReady = true;
-                    clearInterval(loadingInterval);
-                    
-                    setTimeout(() => {
-                        loadingScreen.style.opacity = '0';
-                        
-                        setTimeout(() => {
-                            loadingScreen.style.display = 'none';
-                            revealContent();
-                        }, 1500);
-                    }, 2000);
+                    checkAllLoaded();
+                }
+            });
+            
+            // Audio error handling
+            audio.addEventListener('error', function() {
+                console.log("Audio failed to load");
+                // Continue without audio
+                if (!audioReady) {
+                    audioReady = true;
+                    checkAllLoaded();
+                }
+            });
+            
+            // Ensure video keeps playing even if tab is inactive
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Tab is hidden, pause video
+                    video.pause();
+                    audio.pause();
+                } else {
+                    // Tab is visible, resume
+                    video.play();
+                    audio.play();
                 }
             });
         });
