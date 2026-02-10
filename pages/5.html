@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 5 — The Boundary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #000;
+            color: #e8e8e8;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Video background - minimal */
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.2;
+            z-index: 1;
+            filter: brightness(0.4) contrast(1.4) blur(1px);
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2;
+        }
+
+        /* Grain effect - strongest */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0.08;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.0' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Main content */
+        .content-container {
+            position: relative;
+            z-index: 4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(2rem, 5vw, 4rem);
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeIn 4s ease-out 2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .page-number {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-size: 0.9rem;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .story-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.8;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+        }
+
+        .story-text {
+            margin-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: textAppear 3s ease-out forwards;
+        }
+
+        .story-text:nth-child(1) { animation-delay: 2.5s; }
+        .story-text:nth-child(2) { animation-delay: 4s; }
+        .story-text:nth-child(3) { animation-delay: 5.5s; }
+        .story-text:nth-child(4) { animation-delay: 7s; }
+
+        @keyframes textAppear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Final revelation */
+        .revelation-box {
+            margin: 3rem 0;
+            padding: 2rem;
+            border: 1px solid #555;
+            background: rgba(10, 0, 0, 0.3);
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 3s ease-out 8.5s forwards;
+        }
+
+        .revelation-box::before, .revelation-box::after {
+            content: '✦';
+            position: absolute;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .revelation-box::before {
+            top: -10px;
+            left: -10px;
+        }
+
+        .revelation-box::after {
+            bottom: -10px;
+            right: -10px;
+        }
+
+        .revelation-text {
+            color: #ccc;
+            font-size: 1rem;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        /* Access boundary */
+        .access-boundary {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-top: 2px solid #333;
+            opacity: 0;
+            animation: fadeIn 3s ease-out 10s forwards;
+        }
+
+        .boundary-text {
+            color: #888;
+            font-size: 0.95rem;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .boundary-note {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #555;
+            font-style: italic;
+        }
+
+        /* Navigation */
+        .navigation {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 3s ease-out 11.5s forwards;
+        }
+
+        .nav-button {
+            padding: 0.8rem 2rem;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #444;
+            border-radius: 1px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-button:hover {
+            color: #fff;
+            border-color: #666;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .prev-button::before {
+            content: '← ';
+        }
+
+        .next-button::after {
+            content: ' →';
+        }
+
+        /* Progress indicator */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #222;
+            z-index: 5;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #666;
+            width: 100%; /* Page 5 of 5 */
+            transition: width 0.5s ease;
+        }
+
+        /* Final warning */
+        .final-warning {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #444;
+            opacity: 0.5;
+            z-index: 6;
+            text-align: center;
+            width: 100%;
+            padding: 0 2rem;
+            opacity: 0;
+            animation: fadeIn 3s ease-out 13s forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 1.5rem;
+            }
+            
+            .page-number {
+                top: 1rem;
+                left: 1rem;
+            }
+            
+            .revelation-box {
+                padding: 1.5rem;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .final-warning {
+                bottom: 1rem;
+            }
+        }
+
+        /* Final flicker effect */
+        @keyframes finalFlicker {
+            0%, 100% { opacity: 1; }
+            90%, 92%, 94%, 96%, 98% { opacity: 0.8; }
+            91%, 93%, 95%, 97%, 99% { opacity: 1; }
+        }
+
+        body {
+            animation: finalFlicker 30s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Minimal audio - just barely audible -->
+    <audio id="ambient-audio" loop>
+        <source src="Assets/ambient5.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Video background -->
+    <video id="background-video" autoplay muted loop playsinline>
+        <source src="Assets/background5.mp4" type="video/mp4">
+    </video>
+    
+    <div class="video-overlay"></div>
+    <div class="grain-overlay"></div>
+    
+    <!-- Progress bar -->
+    <div class="progress-bar">
+        <div class="progress-fill"></div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="content-container">
+        <div class="page-number">PAGE 5/50</div>
+        
+        <div class="story-content">
+            <div class="story-text">
+                The archive contains one final document from the original research team. It was found sealed in a fireproof box, buried beneath the foundation of their abandoned facility.
+            </div>
+            
+            <div class="story-text">
+                Dated the day before they disappeared. Written in Dr. Aris's handwriting, but with noticeable tremors not present in earlier notes.
+            </div>
+            
+            <div class="story-text">
+                It doesn't describe observations. It doesn't analyze data. It contains only a single, repeated sentence, written forty-seven times.
+            </div>
+            
+            <div class="story-text">
+                Each iteration slightly different. As if trying to correct a translation error. Or communicate something that language can't properly contain.
+            </div>
+            
+            <div class="revelation-box">
+                <div class="revelation-text">
+                    "It wasn't observing us. We were observing it observing itself through us. The silence isn't empty. The silence is the observer."
+                </div>
+            </div>
+            
+            <div class="access-boundary">
+                <div class="boundary-text">
+                    You have reached the boundary of open-access material.<br>
+                    The archive continues for forty-five additional pages.<br>
+                    These contain field recordings, unedited witness testimony, and the researchers' final, uncensored conclusions.
+                </div>
+                <div class="boundary-note">
+                    Continued access requires verification.
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-button prev-button" onclick="navigateToPrevious()">Previous</button>
+            <button class="nav-button next-button" id="next-button" onclick="attemptToContinue()">Continue to Page 6</button>
+        </div>
+    </div>
+    
+    <div class="final-warning" id="final-warning">
+        <!-- Warning appears here if unauthorized -->
+    </div>
+
+    <script>
+        // Video fallback
+        const video = document.getElementById('background-video');
+        video.addEventListener('error', function() {
+            document.body.style.background = '#0a0a0a';
+            this.style.display = 'none';
+        });
+        
+        // Minimal ambient audio
+        const audio = document.getElementById('ambient-audio');
+        setTimeout(() => {
+            audio.volume = 0.05; // Barely audible
+            audio.play().catch(() => {
+                // Silent fail
+            });
+        }, 4000);
+        
+        // Navigation
+        function navigateToPrevious() {
+            document.querySelector('.content-container').style.opacity = '0';
+            document.querySelector('.content-container').style.transition = 'opacity 1s ease';
+            
+            // Fade out audio
+            if (audio.volume > 0) {
+                const fadeAudio = setInterval(() => {
+                    if (audio.volume > 0.01) {
+                        audio.volume -= 0.01;
+                    } else {
+                        clearInterval(fadeAudio);
+                        audio.pause();
+                    }
+                }, 20);
+            }
+            
+            setTimeout(() => {
+                window.location.href = '4.html';
+            }, 1000);
+        }
+        
+        // Attempt to continue to page 6 - will check authentication
+        function attemptToContinue() {
+            const nextButton = document.getElementById('next-button');
+            const finalWarning = document.getElementById('final-warning');
+            
+            nextButton.disabled = true;
+            nextButton.textContent = 'Verifying access...';
+            
+            // Simulate verification delay
+            setTimeout(() => {
+                // This is where authentication check would happen
+                // For now, simulate unauthorized access
+                const isAuthenticated = false; // Always false for demo
+                
+                if (!isAuthenticated) {
+                    nextButton.textContent = 'Access Denied';
+                    nextButton.style.borderColor = '#552222';
+                    nextButton.style.color = '#885555';
+                    
+                    // Show warning
+                    finalWarning.textContent = "Access to the remaining pages requires verification. Redirecting to login...";
+                    finalWarning.style.color = '#664444';
+                    
+                    // Redirect to login after delay
+                    setTimeout(() => {
+                        document.querySelector('.content-container').style.opacity = '0';
+                        document.querySelector('.content-container').style.transition = 'opacity 1s ease';
+                        
+                        setTimeout(() => {
+                            // Redirect to login page
+                            window.location.href = '../login.html';
+                        }, 1000);
+                    }, 3000);
+                } else {
+                    // If authenticated, proceed to page 6
+                    window.location.href = '6.html';
+                }
+            }, 2000);
+        }
+        
+        // Progress fill
+        setTimeout(() => {
+            document.querySelector('.progress-fill').style.width = '100%';
+        }, 500);
+        
+        // Strong flicker effects for climax
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                const originalOpacity = video.style.opacity;
+                video.style.opacity = '0.1';
+                setTimeout(() => {
+                    video.style.opacity = originalOpacity;
+                }, 100);
+            }
+        }, 3000);
+        
+        // Text glitch effect
+        setTimeout(() => {
+            setInterval(() => {
+                if (Math.random() < 0.05) {
+                    const revelationText = document.querySelector('.revelation-text');
+                    const originalText = revelationText.textContent;
+                    
+                    // Brief glitch
+                    revelationText.style.opacity = '0.7';
+                    revelationText.style.transform = 'translateX(2px)';
+                    
+                    setTimeout(() => {
+                        revelationText.style.opacity = '1';
+                        revelationText.style.transform = 'translateX(0)';
+                    }, 150);
+                }
+            }, 4000);
+        }, 9000);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                navigateToPrevious();
+            } else if (e.key === 'ArrowRight' || e.key === ' ') {
+                attemptToContinue();
+            }
+        });
+        
+        // Reference previous selection from page 3 one final time
+        setTimeout(() => {
+            const previousSelection = sessionStorage.getItem('page3_selection');
+            if (previousSelection) {
+                const boundaryNote = document.querySelector('.boundary-note');
+                
+                let personalNote = '';
+                switch(previousSelection) {
+                    case 'a':
+                        personalNote = " Your curiosity has brought you this far.";
+                        break;
+                    case 'b':
+                        personalNote = " Your careful observation has prepared you.";
+                        break;
+                    case 'c':
+                        personalNote = " Your caution has preserved your perspective.";
+                        break;
+                }
+                
+                boundaryNote.textContent += personalNote;
+            }
+        }, 12000);
+        
+        // Pause audio when tab is hidden
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                audio.pause();
+            } else {
+                audio.play();
+            }
+        });
+        
+        // Final effect: gradually reduce video brightness
+        setTimeout(() => {
+            let brightness = 0.4;
+            const darkenInterval = setInterval(() => {
+                if (brightness > 0.1) {
+                    brightness -= 0.01;
+                    video.style.filter = `brightness(${brightness}) contrast(1.4) blur(1px)`;
+                } else {
+                    clearInterval(darkenInterval);
+                }
+            }, 100);
+        }, 14000);
+    </script>
+</body>
+</html>
