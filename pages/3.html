@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 3 — The Question</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #000;
+            color: #e8e8e8;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Video background */
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            z-index: 1;
+            filter: brightness(0.6) contrast(1.2);
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2;
+        }
+
+        /* Grain effect */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Main content */
+        .content-container {
+            position: relative;
+            z-index: 4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(2rem, 5vw, 4rem);
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .page-number {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-size: 0.9rem;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .story-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.8;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+        }
+
+        .story-text {
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: textAppear 2s ease-out forwards;
+        }
+
+        .story-text:nth-child(1) { animation-delay: 1s; }
+        .story-text:nth-child(2) { animation-delay: 2.5s; }
+        .story-text:nth-child(3) { animation-delay: 4s; }
+
+        @keyframes textAppear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Question section */
+        .question-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            border: 1px solid #333;
+            background: rgba(20, 20, 20, 0.3);
+            opacity: 0;
+            animation: fadeIn 2s ease-out 5.5s forwards;
+        }
+
+        .question-title {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option {
+            padding: 1.2rem;
+            background: transparent;
+            border: 1px solid #444;
+            color: #bbb;
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #666;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .option.selected {
+            border-color: #888;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .option::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .option:hover::after {
+            left: 100%;
+        }
+
+        .response-message {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-left: 2px solid #555;
+            font-style: italic;
+            color: #888;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .response-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Navigation */
+        .navigation {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 6s forwards;
+        }
+
+        .nav-button {
+            padding: 0.8rem 2rem;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #444;
+            border-radius: 1px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-button:hover {
+            color: #fff;
+            border-color: #666;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .prev-button::before {
+            content: '← ';
+        }
+
+        .next-button::after {
+            content: ' →';
+        }
+
+        .next-button.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .next-button.disabled:hover {
+            color: #aaa;
+            border-color: #444;
+            background: transparent;
+        }
+
+        /* Progress indicator */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #222;
+            z-index: 5;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #666;
+            width: 60%; /* Page 3 of 5 */
+            transition: width 0.5s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 1.5rem;
+            }
+            
+            .page-number {
+                top: 1rem;
+                left: 1rem;
+            }
+            
+            .question-section {
+                padding: 1.5rem;
+            }
+            
+            .option {
+                padding: 1rem;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Pulse animation for question */
+        @keyframes pulseBorder {
+            0%, 100% { border-color: #333; }
+            50% { border-color: #444; }
+        }
+
+        .question-section {
+            animation: pulseBorder 8s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Video background -->
+    <video id="background-video" autoplay muted loop playsinline>
+        <source src="Assets/background3.mp4" type="video/mp4">
+    </video>
+    
+    <div class="video-overlay"></div>
+    <div class="grain-overlay"></div>
+    
+    <!-- Progress bar -->
+    <div class="progress-bar">
+        <div class="progress-fill"></div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="content-container">
+        <div class="page-number">PAGE 3/50</div>
+        
+        <div class="story-content">
+            <div class="story-text">
+                Researchers studying the phenomenon noted something curious: those who reported the strongest experiences shared a particular psychological profile.
+            </div>
+            
+            <div class="story-text">
+                Not trauma. Not anxiety disorders. Instead, they exhibited heightened pattern recognition, deep curiosity about unseen systems, and a tolerance for ambiguity.
+            </div>
+            
+            <div class="story-text">
+                As if the phenomenon sought observers who could perceive it without needing to define it. Who could feel the pattern without demanding the picture.
+            </div>
+            
+            <div class="question-section">
+                <div class="question-title">Consider the following hypothetical:</div>
+                
+                <div class="options-container">
+                    <button class="option" data-value="a">
+                        If you discovered a room in your home that wasn't on any blueprint, would you explore it immediately?
+                    </button>
+                    
+                    <button class="option" data-value="b">
+                        Would you document it carefully first, then explore with caution?
+                    </button>
+                    
+                    <button class="option" data-value="c">
+                        Would you seal it and pretend you never found it?
+                    </button>
+                </div>
+                
+                <div class="response-message" id="response-message">
+                    <!-- Response appears here after selection -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-button prev-button" onclick="navigateToPrevious()">Previous</button>
+            <button class="nav-button next-button disabled" id="next-button" onclick="navigateToNext()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Video fallback
+        const video = document.getElementById('background-video');
+        video.addEventListener('error', function() {
+            document.body.style.background = '#0a0a0a';
+            this.style.display = 'none';
+        });
+        
+        // Question handling
+        let selectedOption = null;
+        const options = document.querySelectorAll('.option');
+        const responseMessage = document.getElementById('response-message');
+        const nextButton = document.getElementById('next-button');
+        
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                // Deselect all options
+                options.forEach(opt => opt.classList.remove('selected'));
+                
+                // Select this option
+                this.classList.add('selected');
+                selectedOption = this.dataset.value;
+                
+                // Remove disabled state from next button after delay
+                setTimeout(() => {
+                    nextButton.classList.remove('disabled');
+                    nextButton.disabled = false;
+                }, 1000);
+                
+                // Show appropriate response
+                let response = '';
+                switch(selectedOption) {
+                    case 'a':
+                        response = "Curiosity as immediate action. The researchers noted this correlates with quicker recognition of the phenomenon.";
+                        break;
+                    case 'b':
+                        response = "Methodical approach. This pattern associates with more detailed observations and longer engagement periods.";
+                        break;
+                    case 'c':
+                        response = "Preservation of normalcy. Interestingly, avoidance doesn't prevent the phenomenon—only changes its manifestation.";
+                        break;
+                }
+                
+                responseMessage.textContent = response;
+                responseMessage.classList.add('show');
+                
+                // Store selection (not sending anywhere, just for session)
+                sessionStorage.setItem('page3_selection', selectedOption);
+                
+                // Add subtle visual feedback
+                document.querySelector('.question-section').style.animation = 'pulseBorder 2s infinite';
+                setTimeout(() => {
+                    document.querySelector('.question-section').style.animation = 'pulseBorder 8s infinite';
+                }, 2000);
+            });
+        });
+        
+        // Navigation
+        function navigateToPrevious() {
+            document.querySelector('.content-container').style.opacity = '0';
+            document.querySelector('.content-container').style.transition = 'opacity 1s ease';
+            
+            setTimeout(() => {
+                window.location.href = '2.html';
+            }, 1000);
+        }
+        
+        function navigateToNext() {
+            if (!selectedOption) return;
+            
+            nextButton.disabled = true;
+            nextButton.textContent = 'Recording response...';
+            
+            // Add processing delay for tension
+            setTimeout(() => {
+                nextButton.textContent = 'Turning page...';
+                
+                document.querySelector('.content-container').style.opacity = '0';
+                document.querySelector('.content-container').style.transition = 'opacity 1s ease';
+                
+                setTimeout(() => {
+                    window.location.href = '4.html';
+                }, 1000);
+            }, 1500);
+        }
+        
+        // Progress fill
+        setTimeout(() => {
+            document.querySelector('.progress-fill').style.width = '60%';
+        }, 500);
+        
+        // Add subtle text glitch effect
+        setInterval(() => {
+            if (Math.random() < 0.03) {
+                const texts = document.querySelectorAll('.story-text');
+                const randomText = texts[Math.floor(Math.random() * texts.length)];
+                const original = randomText.textContent;
+                
+                // Temporary glitch
+                randomText.style.opacity = '0.7';
+                setTimeout(() => {
+                    randomText.style.opacity = '1';
+                }, 50);
+            }
+        }, 5000);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                navigateToPrevious();
+            } else if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (selectedOption) {
+                    navigateToNext();
+                }
+            } else if (e.key >= '1' && e.key <= '3') {
+                // Allow number keys 1-3 to select options
+                const index = parseInt(e.key) - 1;
+                if (index < options.length) {
+                    options[index].click();
+                }
+            }
+        });
+        
+        // Check for previous selection
+        const previousSelection = sessionStorage.getItem('page3_selection');
+        if (previousSelection) {
+            setTimeout(() => {
+                const option = document.querySelector(`.option[data-value="${previousSelection}"]`);
+                if (option) {
+                    option.click();
+                }
+            }, 6000);
+        }
+    </script>
+</body>
+</html>
