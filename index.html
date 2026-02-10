@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>50 Pages of Fright</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #000;
+            color: #e8e8e8;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Grain overlay */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Loading screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 1.5s ease;
+        }
+
+        .loading-message {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 2rem;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .dot:nth-child(4) { animation-delay: 0.6s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.9); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .warning-text {
+            position: absolute;
+            bottom: 3rem;
+            font-size: 0.9rem;
+            color: #555;
+            letter-spacing: 1px;
+            animation: flicker 8s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 85%, 100% { opacity: 1; }
+            87% { opacity: 0.4; }
+            89% { opacity: 1; }
+            91% { opacity: 0.7; }
+            93% { opacity: 1; }
+        }
+
+        /* Video background */
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            z-index: 1;
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 2;
+        }
+
+        /* Main content */
+        #main-content {
+            position: relative;
+            z-index: 4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 2s ease;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: normal;
+            letter-spacing: 3px;
+            margin-bottom: 1.5rem;
+            color: #f0f0f0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            animation: titleAppear 3s ease-out;
+        }
+
+        @keyframes titleAppear {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 3rem;
+            font-style: italic;
+            letter-spacing: 1px;
+            animation: fadeIn 4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            70% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .intro-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            color: #ccc;
+            animation: fadeIn 5s ease-out;
+        }
+
+        .intro-text p {
+            margin-bottom: 1.5rem;
+        }
+
+        .warning-note {
+            font-size: 1rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #333;
+            animation: fadeIn 6s ease-out;
+        }
+
+        /* Start button */
+        .start-button {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            background: transparent;
+            color: #e8e8e8;
+            border: 1px solid #555;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            margin-top: 1rem;
+            animation: fadeIn 7s ease-out;
+        }
+
+        .start-button:hover {
+            border-color: #888;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .start-button:hover::after {
+            left: 100%;
+        }
+
+        .page-counter {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            font-size: 0.9rem;
+            color: #444;
+            letter-spacing: 1px;
+            z-index: 4;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .intro-text {
+                font-size: 1rem;
+            }
+            
+            #main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div id="loading-screen">
+        <div class="loading-message" id="loading-text">Preparing the pages...</div>
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="warning-text">Do not refresh.</div>
+    </div>
+
+    <!-- Video background -->
+    <video id="background-video" autoplay muted loop playsinline>
+        <source src="Assets/back.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="video-overlay"></div>
+
+    <!-- Grain effect -->
+    <div class="grain-overlay"></div>
+
+    <!-- Main content -->
+    <div id="main-content">
+        <h1 class="title">50 Pages of Fright</h1>
+        <div class="subtitle">A Narrative Simulation</div>
+        
+        <div class="intro-text">
+            <p>Welcome to an archival experiment in atmospheric storytelling.</p>
+            <p>You are about to enter a sequence of fifty interconnected pages. Each reveals a fragment of a larger narrative that grows more unsettling as you progress.</p>
+            <p>This is not a game. There are no jump scares, no explicit violence. The horror here is quieter, more persistent.</p>
+            <p>You may leave at any time. The exit is always available. Yet curiosity has brought you this far.</p>
+        </div>
+        
+        <div class="warning-note">
+            The content adapts to your pace. Proceed only if you wish to continue.
+        </div>
+        
+        <button class="start-button" id="begin-btn">Begin Reading</button>
+        
+        <div class="page-counter">Page 0/50</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const mainContent = document.getElementById('main-content');
+            const video = document.getElementById('background-video');
+            const beginBtn = document.getElementById('begin-btn');
+            const loadingText = document.getElementById('loading-text');
+            const loadingMessages = [
+                "Preparing the pages...",
+                "Loading archived material...",
+                "Calibrating atmosphere...",
+                "Establishing connection..."
+            ];
+            
+            let messageIndex = 0;
+            let videoReady = false;
+            let contentRevealed = false;
+            
+            // Change loading message every few seconds
+            const loadingInterval = setInterval(() => {
+                if (!videoReady) {
+                    messageIndex = (messageIndex + 1) % loadingMessages.length;
+                    loadingText.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        loadingText.textContent = loadingMessages[messageIndex];
+                        loadingText.style.opacity = '1';
+                    }, 300);
+                }
+            }, 3000);
+            
+            // Check if video is ready to play
+            video.addEventListener('canplaythrough', function() {
+                if (!videoReady) {
+                    videoReady = true;
+                    clearInterval(loadingInterval);
+                    
+                    // Small delay before revealing content
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            revealContent();
+                        }, 1500);
+                    }, 1500);
+                }
+            });
+            
+            // Fallback in case video takes too long
+            setTimeout(() => {
+                if (!videoReady) {
+                    videoReady = true;
+                    clearInterval(loadingInterval);
+                    loadingScreen.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        revealContent();
+                    }, 1500);
+                }
+            }, 10000);
+            
+            function revealContent() {
+                if (!contentRevealed) {
+                    contentRevealed = true;
+                    mainContent.style.opacity = '1';
+                    
+                    // Change tab title after a delay
+                    setTimeout(() => {
+                        document.title = "Still here?";
+                        
+                        // Change back after a moment
+                        setTimeout(() => {
+                            document.title = "50 Pages of Fright";
+                        }, 3000);
+                    }, 8000);
+                    
+                    // Very subtle text flicker effect occasionally
+                    setInterval(() => {
+                        if (Math.random() < 0.1) {
+                            mainContent.style.opacity = '0.95';
+                            setTimeout(() => {
+                                mainContent.style.opacity = '1';
+                            }, 100);
+                        }
+                    }, 5000);
+                }
+            }
+            
+            // Start button click handler
+            beginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Add some tension with delayed response
+                beginBtn.style.opacity = '0.7';
+                beginBtn.style.pointerEvents = 'none';
+                beginBtn.textContent = "Preparing...";
+                
+                // Subtle fade out effect
+                mainContent.style.transition = 'opacity 1.5s ease';
+                mainContent.style.opacity = '0';
+                
+                setTimeout(() => {
+                    // Redirect to first page
+                    window.location.href = "pages/1.html";
+                }, 1500);
+            });
+            
+            // Video error handling
+            video.addEventListener('error', function() {
+                // Fallback background if video fails
+                document.body.style.background = '#000';
+                video.style.display = 'none';
+                
+                if (!videoReady) {
+                    videoReady = true;
+                    clearInterval(loadingInterval);
+                    
+                    setTimeout(() => {
+                        loadingScreen.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                            revealContent();
+                        }, 1500);
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
