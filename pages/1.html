@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page 1 — The Archive Opens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: #000;
+            color: #e8e8e8;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Video background */
+        #background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            z-index: 1;
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2;
+        }
+
+        /* Grain effect */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+            opacity: 0.02;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Main content */
+        .content-container {
+            position: relative;
+            z-index: 4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(2rem, 5vw, 4rem);
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeIn 3s ease-out 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .page-number {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-size: 0.9rem;
+            color: #555;
+            letter-spacing: 1px;
+        }
+
+        .story-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.8;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+        }
+
+        .story-text {
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: textAppear 2s ease-out forwards;
+        }
+
+        .story-text:nth-child(1) { animation-delay: 1.5s; }
+        .story-text:nth-child(2) { animation-delay: 3s; }
+        .story-text:nth-child(3) { animation-delay: 4.5s; }
+        .story-text:nth-child(4) { animation-delay: 6s; }
+
+        @keyframes textAppear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .archive-note {
+            font-style: italic;
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #333;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 7s forwards;
+        }
+
+        /* Navigation */
+        .navigation {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: flex-end;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 8s forwards;
+        }
+
+        .next-button {
+            padding: 0.8rem 2rem;
+            background: transparent;
+            color: #aaa;
+            border: 1px solid #444;
+            border-radius: 1px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .next-button:hover {
+            color: #fff;
+            border-color: #666;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .next-button::after {
+            content: '→';
+            margin-left: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .next-button:hover::after {
+            opacity: 1;
+        }
+
+        /* Progress indicator */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #222;
+            z-index: 5;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #666;
+            width: 20%; /* Page 1 of 5 */
+            transition: width 0.5s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 1.5rem;
+            }
+            
+            .page-number {
+                top: 1rem;
+                left: 1rem;
+            }
+        }
+
+        /* Flicker effect */
+        @keyframes subtleFlicker {
+            0%, 100% { opacity: 1; }
+            95% { opacity: 0.98; }
+        }
+
+        body {
+            animation: subtleFlicker 20s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Video background -->
+    <video id="background-video" autoplay muted loop playsinline>
+        <source src="Assets/background1.mp4" type="video/mp4">
+    </video>
+    
+    <div class="video-overlay"></div>
+    <div class="grain-overlay"></div>
+    
+    <!-- Progress bar -->
+    <div class="progress-bar">
+        <div class="progress-fill"></div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="content-container">
+        <div class="page-number">PAGE 1/50</div>
+        
+        <div class="story-content">
+            <div class="story-text">
+                The archive opens. A collection of pages, recovered from various sources over several years.
+            </div>
+            
+            <div class="story-text">
+                Some were found in abandoned research facilities. Others appeared in private collections, their origins unclear. A few were shared anonymously, always with the same instruction: "Continue the sequence."
+            </div>
+            
+            <div class="story-text">
+                Together, they form what we now call the 50 Pages of Fright. Not because they contain explicit horror, but because of the pattern that emerges when read in order. A slow dawning. A gradual understanding.
+            </div>
+            
+            <div class="story-text">
+                This is page one. The beginning of that pattern.
+            </div>
+            
+            <div class="archive-note">
+                Archived material, classification level: OPEN ACCESS<br>
+                Compiled and digitized for preservation
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="next-button" onclick="navigateToNext()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Video fallback
+        const video = document.getElementById('background-video');
+        video.addEventListener('error', function() {
+            document.body.style.background = '#0a0a0a';
+            this.style.display = 'none';
+        });
+        
+        // Navigation
+        function navigateToNext() {
+            const button = document.querySelector('.next-button');
+            button.disabled = true;
+            button.textContent = 'Turning page...';
+            
+            document.querySelector('.content-container').style.opacity = '0';
+            document.querySelector('.content-container').style.transition = 'opacity 1s ease';
+            
+            setTimeout(() => {
+                window.location.href = '2.html';
+            }, 1000);
+        }
+        
+        // Progress fill animation
+        setTimeout(() => {
+            document.querySelector('.progress-fill').style.width = '20%';
+        }, 500);
+        
+        // Add occasional subtle flicker
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                document.body.style.animation = 'none';
+                setTimeout(() => {
+                    document.body.style.animation = 'subtleFlicker 20s infinite';
+                }, 100);
+            }
+        }, 10000);
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                navigateToNext();
+            }
+        });
+    </script>
+</body>
+</html>
