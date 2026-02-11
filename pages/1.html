@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Rule of the Third Reflection — Page 1</title>
+    <title>The Rule of the Third Reflection — Page 1/50</title>
     <style>
         * {
             margin: 0;
@@ -12,17 +12,17 @@
         }
 
         body {
-            background: #030303;
+            background: #0a0a0a;
             color: #e0e0e0;
             font-family: 'Georgia', 'Times New Roman', serif;
-            line-height: 1.7;
+            line-height: 1.8;
             font-size: 1.1rem;
             overflow-x: hidden;
             position: relative;
             min-height: 100vh;
         }
 
-        /* Persistent UI Elements */
+        /* ----- PERSISTENT ATMOSPHERE ----- */
         .grain {
             position: fixed;
             top: 0;
@@ -31,7 +31,7 @@
             height: 100%;
             pointer-events: none;
             z-index: 100;
-            opacity: 0.03;
+            opacity: 0.025;
             background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc0IiBudW1PY3RhdmVzPSIzIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2YpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=');
         }
 
@@ -43,22 +43,22 @@
             height: 100%;
             pointer-events: none;
             z-index: 99;
-            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.4) 100%);
+            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5) 100%);
         }
 
         .cursor-glow {
             position: fixed;
-            width: 300px;
-            height: 300px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(80,80,100,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(80, 70, 70, 0.08) 0%, transparent 80%);
             pointer-events: none;
             z-index: 98;
             transform: translate(-50%, -50%);
-            transition: all 0.1s ease;
+            transition: width 0.2s ease, height 0.2s ease;
         }
 
-        /* Video Background */
+        /* ----- VIDEO BACKGROUND ----- */
         .video-background {
             position: fixed;
             top: 0;
@@ -66,36 +66,35 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.3;
+            opacity: 0.25;
             z-index: 0;
             filter: brightness(0.7) contrast(1.2);
+            will-change: transform;
         }
 
-        /* Overlay for readability */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(3, 3, 3, 0.7);
+            background: rgba(8, 8, 8, 0.8);
             z-index: 1;
         }
 
-        /* Content Container */
+        /* ----- SCROLLING CONTENT ----- */
         .content {
             position: relative;
             z-index: 10;
-            max-width: 800px;
+            max-width: 720px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 6rem 2rem 8rem;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
         }
 
-        /* Page Number */
+        /* ----- PAGE NUMBER (MINIMAL) ----- */
         .page-number {
             position: fixed;
             top: 2rem;
@@ -104,18 +103,19 @@
             color: #555;
             letter-spacing: 2px;
             z-index: 50;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
+            font-weight: 300;
         }
 
-        /* Story Text with Scroll Reveal */
-        .story-section {
+        /* ----- SCROLL-REVEAL TEXT ----- */
+        .story-block {
             margin-bottom: 4rem;
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
         }
 
-        .story-section.visible {
+        .story-block.visible {
             opacity: 1;
             transform: translateY(0);
         }
@@ -124,19 +124,30 @@
             margin-bottom: 2rem;
             font-size: 1.2rem;
             line-height: 1.9;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            text-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
 
-        .story-text.emphasis {
-            color: #b0b0b0;
+        .story-text.italic {
             font-style: italic;
+            color: #b8b8b8;
             border-left: 2px solid #444;
             padding-left: 1.5rem;
         }
 
-        /* Navigation */
+        /* ----- ARCHIVE NOTE ----- */
+        .archive-note {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #333;
+            font-size: 0.85rem;
+            color: #777;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* ----- NAVIGATION ----- */
         .navigation {
-            margin-top: 4rem;
+            margin-top: 3rem;
             display: flex;
             justify-content: flex-end;
             opacity: 0;
@@ -153,26 +164,26 @@
             background: transparent;
             border: 1px solid #555;
             color: #ccc;
-            padding: 0.8rem 2.5rem;
-            font-size: 1rem;
+            padding: 0.8rem 2.2rem;
+            font-size: 0.95rem;
             letter-spacing: 3px;
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
             position: relative;
             overflow: hidden;
-            font-family: 'Georgia', serif;
         }
 
         .next-button:hover {
-            border-color: #888;
+            border-color: #7a7a7a;
             color: #fff;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .next-button::after {
             content: '→';
-            margin-left: 0.8rem;
+            margin-left: 0.6rem;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -181,13 +192,13 @@
             opacity: 1;
         }
 
-        /* Return Message */
+        /* ----- RETURN MESSAGE (NO… GO BACK) ----- */
         .return-message {
             position: fixed;
             bottom: 2rem;
             left: 2rem;
-            background: rgba(10, 10, 10, 0.9);
-            border: 1px solid #333;
+            background: rgba(5, 5, 5, 0.85);
+            border: 1px solid #444;
             padding: 0.8rem 1.5rem;
             color: #aaa;
             font-size: 0.9rem;
@@ -195,10 +206,11 @@
             letter-spacing: 1px;
             z-index: 200;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.8s ease;
             cursor: pointer;
+            backdrop-filter: blur(4px);
+            font-family: 'Courier New', monospace;
             border-radius: 2px;
-            backdrop-filter: blur(5px);
         }
 
         .return-message.visible {
@@ -206,136 +218,150 @@
         }
 
         .return-message:hover {
-            border-color: #555;
+            border-color: #666;
             color: #ddd;
         }
 
-        /* Flicker Animation */
-        @keyframes subtleFlicker {
+        /* ----- SUBTLE FLICKER ----- */
+        @keyframes flicker {
             0%, 100% { opacity: 1; }
             95% { opacity: 0.98; }
         }
 
         body {
-            animation: subtleFlicker 10s infinite;
+            animation: flicker 12s infinite;
         }
 
-        /* Responsive */
+        /* ----- HIDE SCROLLBAR BUT KEEP SCROLLING ----- */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* ----- RESPONSIVE ----- */
         @media (max-width: 768px) {
-            .content { padding: 3rem 1.5rem; }
-            .page-number { top: 1rem; left: 1rem; }
+            .content { padding: 5rem 1.5rem 6rem; }
+            .page-number { top: 1.5rem; left: 1.5rem; }
             .story-text { font-size: 1.1rem; }
-            .return-message { bottom: 1rem; left: 1rem; }
+            .return-message { bottom: 1.5rem; left: 1.5rem; }
         }
 
-        /* Parallax effect */
+        /* ----- PARALLAX ----- */
         .parallax {
-            transition: transform 0.1s ease-out;
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0.3, 1);
         }
 
-        /* Audio indicator */
-        .audio-indicator {
+        /* ----- AUDIO INDICATOR (VERY SUBTLE) ----- */
+        .audio-status {
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #444;
-            letter-spacing: 1px;
-            z-index: 50;
             font-family: monospace;
-        }
-
-        @media (max-width: 768px) {
-            .audio-indicator { bottom: 1rem; right: 1rem; }
+            z-index: 40;
+            opacity: 0.4;
         }
     </style>
 </head>
 <body>
-    <!-- Video Background -->
+    <!-- VIDEO BACKGROUND -->
     <video class="video-background parallax" autoplay muted loop playsinline>
         <source src="assets/videos/page1.mp4" type="video/mp4">
     </video>
     <div class="overlay"></div>
-    
-    <!-- Persistent Effects -->
+
+    <!-- ATMOSPHERIC LAYERS -->
     <div class="grain"></div>
     <div class="vignette"></div>
     <div class="cursor-glow" id="cursorGlow"></div>
-    
-    <!-- Page Number -->
-    <div class="page-number">I / L</div>
-    
-    <!-- Audio Indicator -->
-    <div class="audio-indicator" id="audioIndicator">ambience — present</div>
-    
-    <!-- Return Message (appears if returning to this page) -->
+
+    <!-- PAGE NUMBER (MINIMAL) -->
+    <div class="page-number">1/50</div>
+
+    <!-- RETURN MESSAGE (NO… GO BACK) -->
     <div class="return-message" id="returnMessage">
         No… go back.
     </div>
-    
-    <!-- Main Content -->
+
+    <!-- AUDIO STATUS (NEARLY INVISIBLE) -->
+    <div class="audio-status" id="audioStatus">ambience</div>
+
+    <!-- MAIN CONTENT -->
     <div class="content">
-        <div class="story-section" id="section1">
+        <!-- STORY BLOCK 1 -->
+        <div class="story-block">
             <div class="story-text">
                 You remember the story your grandmother told you, once, in the space between sleep and waking.
             </div>
         </div>
-        
-        <div class="story-section" id="section2">
+
+        <!-- STORY BLOCK 2 -->
+        <div class="story-block">
             <div class="story-text">
                 She called it <em>The Rule of the Third Reflection</em>.
             </div>
         </div>
-        
-        <div class="story-section" id="section3">
-            <div class="story-text">
+
+        <!-- STORY BLOCK 3 -->
+        <div class="story-block">
+            <div class="story-text italic">
                 "Mirrors," she said, "are not what you think. The first reflection shows you as you are. The second shows you as others see you. But the third..."
             </div>
         </div>
-        
-        <div class="story-section" id="section4">
-            <div class="story-text emphasis">
+
+        <!-- STORY BLOCK 4 -->
+        <div class="story-block">
+            <div class="story-text">
                 She never finished the sentence. She only looked past you, toward the darkened hallway, and said you'd understand when you were older.
             </div>
         </div>
-        
-        <div class="story-section" id="section5">
+
+        <!-- STORY BLOCK 5 -->
+        <div class="story-block">
             <div class="story-text">
                 You are older now.
             </div>
         </div>
-        
+
+        <!-- ARCHIVE NOTE -->
+        <div class="story-block">
+            <div class="archive-note">
+                — from the personal records of E.V., transcribed 2023<br>
+                original source: oral history, recorded 1987
+            </div>
+        </div>
+
+        <!-- NAVIGATION -->
         <div class="navigation" id="navigation">
             <button class="next-button" id="nextBtn">Continue</button>
         </div>
     </div>
 
     <script>
-        // ============================================
-        // PAGE 1 — THE RULE OF THE THIRD REFLECTION
-        // ============================================
-        
         document.addEventListener('DOMContentLoaded', function() {
             
-            // ---------- LOCAL STORAGE ----------
-            // Save current page as last visited
+            // ---------- LOCAL STORAGE: SAVE LAST PAGE ----------
             localStorage.setItem('lastPage', 'pages/1.html');
             
-            // Check if returning to this page (was on a later page)
+            // ---------- RETURN MESSAGE LOGIC ("No… go back.") ----------
             const previousPage = localStorage.getItem('previousPage');
             const returnMessage = document.getElementById('returnMessage');
             
-            if (previousPage && parseInt(previousPage.split('.')[0]) > 1) {
+            if (previousPage && parseInt(previousPage.split('/')[1].split('.')[0]) > 1) {
                 setTimeout(() => {
                     returnMessage.classList.add('visible');
-                }, 2000);
+                }, 1500);
                 
-                // Hide after 8 seconds
                 setTimeout(() => {
                     returnMessage.classList.remove('visible');
-                }, 10000);
+                }, 9500); // 8 seconds visible
                 
-                // Click to go back
                 returnMessage.addEventListener('click', function() {
                     const lastPage = localStorage.getItem('lastPage');
                     if (lastPage && lastPage !== 'pages/1.html') {
@@ -344,28 +370,25 @@
                 });
             }
             
-            // Store for return message logic
             localStorage.setItem('previousPage', 'pages/1.html');
             
-            
             // ---------- SCROLL REVEAL ----------
-            const sections = document.querySelectorAll('.story-section');
+            const storyBlocks = document.querySelectorAll('.story-block');
             const navigation = document.getElementById('navigation');
             
             function checkVisibility() {
-                sections.forEach(section => {
-                    const rect = section.getBoundingClientRect();
+                storyBlocks.forEach(block => {
+                    const rect = block.getBoundingClientRect();
                     const isVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
-                    
                     if (isVisible) {
-                        section.classList.add('visible');
+                        block.classList.add('visible');
                     }
                 });
                 
-                // Show navigation when near bottom
-                const lastSection = sections[sections.length - 1];
-                if (lastSection) {
-                    const rect = lastSection.getBoundingClientRect();
+                // Show navigation when near the end
+                const lastBlock = storyBlocks[storyBlocks.length - 1];
+                if (lastBlock) {
+                    const rect = lastBlock.getBoundingClientRect();
                     if (rect.top < window.innerHeight * 0.6) {
                         navigation.classList.add('visible');
                     }
@@ -373,124 +396,128 @@
             }
             
             window.addEventListener('scroll', checkVisibility);
-            window.addEventListener('resize', checkVisibility);
-            
-            // Initial check
-            setTimeout(checkVisibility, 100);
-            setTimeout(checkVisibility, 500);
-            setTimeout(checkVisibility, 1000);
-            
+            setTimeout(checkVisibility, 200);
+            setTimeout(checkVisibility, 600);
+            setTimeout(checkVisibility, 1200);
             
             // ---------- CURSOR GLOW ----------
             const cursorGlow = document.getElementById('cursorGlow');
-            
             document.addEventListener('mousemove', function(e) {
                 cursorGlow.style.left = e.clientX + 'px';
                 cursorGlow.style.top = e.clientY + 'px';
             });
             
-            
             // ---------- PARALLAX EFFECT ----------
             const video = document.querySelector('.video-background');
-            
             window.addEventListener('scroll', function() {
                 const scrollY = window.scrollY;
                 const maxScroll = document.body.scrollHeight - window.innerHeight;
                 const scrollPercent = scrollY / maxScroll;
-                
-                video.style.transform = `translateY(${scrollPercent * 20}px)`;
+                video.style.transform = `translateY(${scrollPercent * 15}px)`;
             });
             
+            // ---------- AMBIENT AUDIO (FADE IN SLOWLY) ----------
+            const ambientAudio = new Audio('assets/audio/ambience1.mp3');
+            ambientAudio.loop = true;
+            ambientAudio.volume = 0;
             
-            // ---------- AMBIENT AUDIO ----------
-            const audio = new Audio('assets/audio/ambience1.mp3');
-            audio.loop = true;
-            audio.volume = 0;
-            
-            // Fade in audio slowly
             let audioStarted = false;
             
-            function startAudio() {
+            function initAudio() {
                 if (audioStarted) return;
                 audioStarted = true;
                 
-                audio.play().catch(e => {
-                    console.log('Audio autoplay prevented — will start on interaction');
-                    document.addEventListener('click', function initAudio() {
-                        audio.play();
-                        document.removeEventListener('click', initAudio);
+                ambientAudio.play().catch(e => {
+                    // Autoplay prevented — start on first interaction
+                    document.addEventListener('click', function startAudio() {
+                        ambientAudio.play();
+                        document.removeEventListener('click', startAudio);
                     }, { once: true });
                 });
                 
-                let volume = 0;
+                // Fade in over 10 seconds
+                let vol = 0;
                 const fadeInterval = setInterval(() => {
-                    if (volume < 0.15) {
-                        volume += 0.005;
-                        audio.volume = volume;
+                    if (vol < 0.12) {
+                        vol += 0.002;
+                        ambientAudio.volume = vol;
                     } else {
                         clearInterval(fadeInterval);
                     }
                 }, 200);
             }
             
-            // Start audio after delay
-            setTimeout(startAudio, 2000);
+            setTimeout(initAudio, 2000);
             
-            // Pause when tab inactive
+            // Stop audio when tab inactive
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden) {
-                    audio.pause();
+                    ambientAudio.pause();
                 } else {
-                    audio.play();
+                    ambientAudio.play();
                 }
             });
             
-            
-            // ---------- AUDIO INDICATOR ----------
-            const audioIndicator = document.getElementById('audioIndicator');
+            // ---------- AUDIO STATUS (FADE OUT) ----------
+            const audioStatus = document.getElementById('audioStatus');
             setTimeout(() => {
-                audioIndicator.style.opacity = '0.3';
-            }, 5000);
-            
+                audioStatus.style.opacity = '0.15';
+            }, 6000);
             
             // ---------- NAVIGATION ----------
             const nextBtn = document.getElementById('nextBtn');
             
-            nextBtn.addEventListener('click', function() {
-                // Fade out animation
-                document.body.style.opacity = '0';
-                document.body.style.transition = 'opacity 0.4s ease';
+            nextBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Disable button
+                this.disabled = true;
+                this.textContent = 'turning...';
                 
                 // Fade out audio
                 const fadeOut = setInterval(() => {
-                    if (audio.volume > 0.01) {
-                        audio.volume -= 0.01;
+                    if (ambientAudio.volume > 0.01) {
+                        ambientAudio.volume -= 0.01;
                     } else {
                         clearInterval(fadeOut);
-                        audio.pause();
+                        ambientAudio.pause();
                     }
                 }, 20);
+                
+                // Fade to black transition
+                document.body.style.opacity = '0';
+                document.body.style.transition = 'opacity 0.4s ease';
                 
                 setTimeout(() => {
                     window.location.href = '2.html';
                 }, 400);
             });
             
-            
             // ---------- KEYBOARD NAVIGATION ----------
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'ArrowRight' || e.key === ' ') {
                     e.preventDefault();
-                    nextBtn.click();
+                    if (!nextBtn.disabled) {
+                        nextBtn.click();
+                    }
                 }
             });
             
-            
             // ---------- VIDEO FALLBACK ----------
-            const videoElement = document.querySelector('video');
-            videoElement.addEventListener('error', function() {
+            const videoEl = document.querySelector('video');
+            videoEl.addEventListener('error', function() {
                 this.style.display = 'none';
             });
+            
+            // ---------- SUBTLE FLICKER (OCCASIONAL) ----------
+            setInterval(() => {
+                if (Math.random() < 0.08) {
+                    document.body.style.animation = 'none';
+                    setTimeout(() => {
+                        document.body.style.animation = 'flicker 12s infinite';
+                    }, 20);
+                }
+            }, 8000);
         });
     </script>
 </body>
