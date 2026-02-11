@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Rule of the Third Reflection — Page 1/50</title>
+    <title>the rule of the third reflection — 1/50</title>
     <style>
+        /* ---------- RESET & BASE ---------- */
         * {
             margin: 0;
             padding: 0;
@@ -12,17 +13,43 @@
         }
 
         body {
-            background: #0a0a0a;
+            background: #030303;
             color: #e0e0e0;
             font-family: 'Georgia', 'Times New Roman', serif;
-            line-height: 1.8;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            line-height: 1.9;
             overflow-x: hidden;
             position: relative;
             min-height: 100vh;
+            transition: opacity 0.4s ease;
+            opacity: 1;
         }
 
-        /* ----- PERSISTENT ATMOSPHERE ----- */
+        /* ---------- VIDEO BACKGROUND ---------- */
+        .video-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.28;
+            z-index: 0;
+            filter: brightness(0.65) contrast(1.2);
+            will-change: transform;
+        }
+
+        .overlay-dark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(5,5,5,0.75) 0%, rgba(3,3,3,0.9) 100%);
+            z-index: 1;
+        }
+
+        /* ---------- PERSISTENT ATMOSPHERE ---------- */
         .grain {
             position: fixed;
             top: 0;
@@ -43,109 +70,174 @@
             height: 100%;
             pointer-events: none;
             z-index: 99;
-            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5) 100%);
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.55) 130%);
         }
 
+        /* ---------- CURSOR GLOW ---------- */
         .cursor-glow {
             position: fixed;
-            width: 200px;
-            height: 200px;
+            width: 260px;
+            height: 260px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(80, 70, 70, 0.08) 0%, transparent 80%);
+            background: radial-gradient(circle, rgba(85, 75, 75, 0.06) 0%, transparent 80%);
             pointer-events: none;
             z-index: 98;
             transform: translate(-50%, -50%);
             transition: width 0.2s ease, height 0.2s ease;
         }
 
-        /* ----- VIDEO BACKGROUND ----- */
-        .video-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.25;
-            z-index: 0;
-            filter: brightness(0.7) contrast(1.2);
-            will-change: transform;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(8, 8, 8, 0.8);
-            z-index: 1;
-        }
-
-        /* ----- SCROLLING CONTENT ----- */
-        .content {
-            position: relative;
-            z-index: 10;
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 6rem 2rem 8rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ----- PAGE NUMBER (MINIMAL) ----- */
+        /* ---------- PAGE NUMBER (MINIMAL) ---------- */
         .page-number {
             position: fixed;
             top: 2rem;
             left: 2rem;
             font-size: 0.8rem;
             color: #555;
-            letter-spacing: 2px;
-            z-index: 50;
+            letter-spacing: 3px;
+            z-index: 70;
             font-family: 'Courier New', monospace;
             font-weight: 300;
+            opacity: 0.8;
         }
 
-        /* ----- SCROLL-REVEAL TEXT ----- */
-        .story-block {
-            margin-bottom: 4rem;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
+        /* ---------- LIVING ICON — TOP RIGHT (MUTE SEQUENCE) ---------- */
+        .living-icon {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #555;
+            background: rgba(10,10,10,0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.3s ease;
+            color: #aaa;
+            font-size: 0.9rem;
+            border-radius: 0;
         }
 
-        .story-block.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .living-icon:hover {
+            border-color: #7a7a7a;
+            background: rgba(30,25,25,0.7);
+            color: #ddd;
         }
 
-        .story-text {
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-            line-height: 1.9;
-            text-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        .story-text.italic {
-            font-style: italic;
-            color: #b8b8b8;
-            border-left: 2px solid #444;
-            padding-left: 1.5rem;
-        }
-
-        /* ----- ARCHIVE NOTE ----- */
-        .archive-note {
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #333;
-            font-size: 0.85rem;
-            color: #777;
+        .living-icon span {
             font-family: 'Courier New', monospace;
             letter-spacing: 1px;
         }
 
-        /* ----- NAVIGATION ----- */
+        /* ---------- BLACK SCREEN STATE ---------- */
+        .black-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+
+        .black-screen-message {
+            color: #333;
+            font-size: 1.1rem;
+            font-style: italic;
+            letter-spacing: 3px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            opacity: 0;
+            transition: opacity 5s ease;
+        }
+
+        /* ---------- RETURN MESSAGE (NOH, GO BACK...) ---------- */
+        .return-message {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: rgba(5,5,5,0.9);
+            border: 1px solid #444;
+            padding: 0.9rem 1.8rem;
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            font-style: italic;
+            letter-spacing: 2px;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            font-family: 'Courier New', monospace;
+            border-radius: 2px;
+        }
+
+        .return-message.visible {
+            opacity: 0.9;
+        }
+
+        .return-message:hover {
+            border-color: #6a6a6a;
+            color: #e0e0e0;
+        }
+
+        /* ---------- MAIN CONTENT (SCROLLING) ---------- */
+        .content {
+            position: relative;
+            z-index: 50;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 7rem 2rem 10rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---------- SCROLL REVEAL TEXT ---------- */
+        .text-block {
+            margin-bottom: 4.5rem;
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.9s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.9s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        .text-block.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .text-block p {
+            margin-bottom: 1.8rem;
+            text-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .text-block .italic {
+            font-style: italic;
+            color: #c0c0c0;
+            border-left: 2px solid #4a4a4a;
+            padding-left: 1.5rem;
+        }
+
+        /* ---------- ARCHIVE MARK ---------- */
+        .archive-note {
+            margin-top: 3rem;
+            padding-top: 1.8rem;
+            border-top: 1px solid #3a3a3a;
+            font-size: 0.8rem;
+            color: #6a6a6a;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* ---------- NAVIGATION ---------- */
         .navigation {
             margin-top: 3rem;
             display: flex;
@@ -162,11 +254,11 @@
 
         .next-button {
             background: transparent;
-            border: 1px solid #555;
-            color: #ccc;
-            padding: 0.8rem 2.2rem;
+            border: 1px solid #5a5a5a;
+            color: #d0d0d0;
+            padding: 0.9rem 2.4rem;
             font-size: 0.95rem;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -176,14 +268,14 @@
         }
 
         .next-button:hover {
-            border-color: #7a7a7a;
+            border-color: #888;
             color: #fff;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255,255,255,0.02);
         }
 
         .next-button::after {
             content: '→';
-            margin-left: 0.6rem;
+            margin-left: 0.7rem;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -192,47 +284,56 @@
             opacity: 1;
         }
 
-        /* ----- RETURN MESSAGE (NO… GO BACK) ----- */
-        .return-message {
-            position: fixed;
-            bottom: 2rem;
-            left: 2rem;
-            background: rgba(5, 5, 5, 0.85);
-            border: 1px solid #444;
-            padding: 0.8rem 1.5rem;
-            color: #aaa;
-            font-size: 0.9rem;
-            font-style: italic;
-            letter-spacing: 1px;
-            z-index: 200;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            font-family: 'Courier New', monospace;
-            border-radius: 2px;
+        /* ---------- PARALLAX ---------- */
+        .parallax {
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0.3, 1);
         }
 
-        .return-message.visible {
-            opacity: 1;
-        }
-
-        .return-message:hover {
-            border-color: #666;
-            color: #ddd;
-        }
-
-        /* ----- SUBTLE FLICKER ----- */
-        @keyframes flicker {
+        /* ---------- FLICKER ---------- */
+        @keyframes subtle-flicker {
             0%, 100% { opacity: 1; }
-            95% { opacity: 0.98; }
+            95% { opacity: 0.97; }
         }
 
         body {
-            animation: flicker 12s infinite;
+            animation: subtle-flicker 20s infinite;
         }
 
-        /* ----- HIDE SCROLLBAR BUT KEEP SCROLLING ----- */
+        /* ---------- SHAKE EFFECT (FOR MUTE SEQUENCE) ---------- */
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            20% { transform: translate(2px, -1px); }
+            40% { transform: translate(-2px, 1px); }
+            60% { transform: translate(1px, -1px); }
+            80% { transform: translate(-1px, 1px); }
+            100% { transform: translate(0,0); }
+        }
+
+        .shake-effect {
+            animation: shake 0.3s ease;
+        }
+
+        /* ---------- GLITCH TEXT ---------- */
+        @keyframes glitch {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            20% { transform: translate(-2px, 1px); filter: hue-rotate(5deg); }
+            40% { transform: translate(2px, -1px); filter: hue-rotate(-5deg); }
+            60% { transform: translate(-1px, 2px); filter: hue-rotate(3deg); }
+            80% { transform: translate(1px, -2px); filter: hue-rotate(-3deg); }
+            100% { transform: translate(0); filter: hue-rotate(0deg); }
+        }
+
+        .glitch-effect {
+            animation: glitch 0.4s ease;
+        }
+
+        /* ---------- RED BLEED ---------- */
+        .red-bleed {
+            box-shadow: inset 0 0 30px rgba(80, 20, 20, 0.3);
+            transition: box-shadow 0.5s ease;
+        }
+
+        /* ---------- HIDE SCROLLBAR ---------- */
         ::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -243,97 +344,78 @@
             -ms-overflow-style: none;
         }
 
-        /* ----- RESPONSIVE ----- */
+        /* ---------- RESPONSIVE ---------- */
         @media (max-width: 768px) {
-            .content { padding: 5rem 1.5rem 6rem; }
+            .content { padding: 6rem 1.8rem 8rem; }
             .page-number { top: 1.5rem; left: 1.5rem; }
-            .story-text { font-size: 1.1rem; }
+            .living-icon { top: 1.5rem; right: 1.5rem; }
             .return-message { bottom: 1.5rem; left: 1.5rem; }
-        }
-
-        /* ----- PARALLAX ----- */
-        .parallax {
-            transition: transform 0.2s cubic-bezier(0.2, 0, 0.3, 1);
-        }
-
-        /* ----- AUDIO INDICATOR (VERY SUBTLE) ----- */
-        .audio-status {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            font-size: 0.65rem;
-            color: #444;
-            font-family: monospace;
-            z-index: 40;
-            opacity: 0.4;
+            .text-block p { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
     <!-- VIDEO BACKGROUND -->
-    <video class="video-background parallax" autoplay muted loop playsinline>
-        <source src="assets/videos/page1.mp4" type="video/mp4">
+    <video class="video-layer parallax" autoplay muted loop playsinline>
+        <source src="Assets/Videos/back1.mp4" type="video/mp4">
     </video>
-    <div class="overlay"></div>
+    <div class="overlay-dark"></div>
 
     <!-- ATMOSPHERIC LAYERS -->
     <div class="grain"></div>
     <div class="vignette"></div>
     <div class="cursor-glow" id="cursorGlow"></div>
 
-    <!-- PAGE NUMBER (MINIMAL) -->
+    <!-- PAGE NUMBER -->
     <div class="page-number">1/50</div>
 
-    <!-- RETURN MESSAGE (NO… GO BACK) -->
-    <div class="return-message" id="returnMessage">
-        No… go back.
+    <!-- LIVING ICON — TOP RIGHT (MUTE SEQUENCE) -->
+    <div class="living-icon" id="livingIcon">
+        <span>●</span>
     </div>
 
-    <!-- AUDIO STATUS (NEARLY INVISIBLE) -->
-    <div class="audio-status" id="audioStatus">ambience</div>
+    <!-- BLACK SCREEN STATE (FINAL MUTE EFFECT) -->
+    <div class="black-screen" id="blackScreen">
+        <div class="black-screen-message" id="blackScreenMessage"></div>
+    </div>
+
+    <!-- RETURN MESSAGE (NOH, GO BACK...) -->
+    <div class="return-message" id="returnMessage">
+        Noh, Go back...
+    </div>
 
     <!-- MAIN CONTENT -->
     <div class="content">
-        <!-- STORY BLOCK 1 -->
-        <div class="story-block">
-            <div class="story-text">
-                You remember the story your grandmother told you, once, in the space between sleep and waking.
-            </div>
+        <!-- TEXT BLOCK 1 -->
+        <div class="text-block">
+            <p>You remember the story your grandmother told you, once, in the space between sleep and waking.</p>
         </div>
 
-        <!-- STORY BLOCK 2 -->
-        <div class="story-block">
-            <div class="story-text">
-                She called it <em>The Rule of the Third Reflection</em>.
-            </div>
+        <!-- TEXT BLOCK 2 -->
+        <div class="text-block">
+            <p>She called it <em>The Rule of the Third Reflection</em>.</p>
         </div>
 
-        <!-- STORY BLOCK 3 -->
-        <div class="story-block">
-            <div class="story-text italic">
-                "Mirrors," she said, "are not what you think. The first reflection shows you as you are. The second shows you as others see you. But the third..."
-            </div>
+        <!-- TEXT BLOCK 3 -->
+        <div class="text-block">
+            <p class="italic">"Mirrors," she said, "are not what you think. The first reflection shows you as you are. The second shows you as others see you. But the third..."</p>
         </div>
 
-        <!-- STORY BLOCK 4 -->
-        <div class="story-block">
-            <div class="story-text">
-                She never finished the sentence. She only looked past you, toward the darkened hallway, and said you'd understand when you were older.
-            </div>
+        <!-- TEXT BLOCK 4 -->
+        <div class="text-block">
+            <p>She never finished the sentence. She only looked past you, toward the darkened hallway, and said you'd understand when you were older.</p>
         </div>
 
-        <!-- STORY BLOCK 5 -->
-        <div class="story-block">
-            <div class="story-text">
-                You are older now.
-            </div>
+        <!-- TEXT BLOCK 5 -->
+        <div class="text-block">
+            <p>You are older now.</p>
         </div>
 
         <!-- ARCHIVE NOTE -->
-        <div class="story-block">
+        <div class="text-block">
             <div class="archive-note">
                 — from the personal records of E.V., transcribed 2023<br>
-                original source: oral history, recorded 1987
+                source: oral history, recorded 1987
             </div>
         </div>
 
@@ -344,49 +426,52 @@
     </div>
 
     <script>
+        // ============================================
+        // PAGE 1 — THE RULE OF THE THIRD REFLECTION
+        // COMPLETE SYSTEM: LOCAL STORAGE, AUDIO, LIVING ICON, RETURN MESSAGE
+        // ============================================
+
         document.addEventListener('DOMContentLoaded', function() {
             
-            // ---------- LOCAL STORAGE: SAVE LAST PAGE ----------
-            localStorage.setItem('lastPage', 'pages/1.html');
-            
-            // ---------- RETURN MESSAGE LOGIC ("No… go back.") ----------
+            // ---------- LOCAL STORAGE: LAST PAGE ----------
+            localStorage.setItem('lastPage', 'pages/page1.html');
+
+            // ---------- RETURN MESSAGE: "Noh, Go back..." ----------
             const previousPage = localStorage.getItem('previousPage');
             const returnMessage = document.getElementById('returnMessage');
             
-            if (previousPage && parseInt(previousPage.split('/')[1].split('.')[0]) > 1) {
+            if (previousPage && parseInt(previousPage.split('/')[1].replace('page', '').split('.')[0]) > 1) {
                 setTimeout(() => {
                     returnMessage.classList.add('visible');
-                }, 1500);
+                }, 1800);
                 
                 setTimeout(() => {
                     returnMessage.classList.remove('visible');
-                }, 9500); // 8 seconds visible
+                }, 9800);
                 
                 returnMessage.addEventListener('click', function() {
                     const lastPage = localStorage.getItem('lastPage');
-                    if (lastPage && lastPage !== 'pages/1.html') {
+                    if (lastPage && lastPage !== 'pages/page1.html') {
                         window.location.href = lastPage;
                     }
                 });
             }
             
-            localStorage.setItem('previousPage', 'pages/1.html');
-            
+            localStorage.setItem('previousPage', 'pages/page1.html');
+
             // ---------- SCROLL REVEAL ----------
-            const storyBlocks = document.querySelectorAll('.story-block');
+            const textBlocks = document.querySelectorAll('.text-block');
             const navigation = document.getElementById('navigation');
             
-            function checkVisibility() {
-                storyBlocks.forEach(block => {
+            function revealOnScroll() {
+                textBlocks.forEach(block => {
                     const rect = block.getBoundingClientRect();
-                    const isVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
-                    if (isVisible) {
+                    if (rect.top < window.innerHeight * 0.85 && rect.bottom > 0) {
                         block.classList.add('visible');
                     }
                 });
                 
-                // Show navigation when near the end
-                const lastBlock = storyBlocks[storyBlocks.length - 1];
+                const lastBlock = textBlocks[textBlocks.length - 1];
                 if (lastBlock) {
                     const rect = lastBlock.getBoundingClientRect();
                     if (rect.top < window.innerHeight * 0.6) {
@@ -395,129 +480,216 @@
                 }
             }
             
-            window.addEventListener('scroll', checkVisibility);
-            setTimeout(checkVisibility, 200);
-            setTimeout(checkVisibility, 600);
-            setTimeout(checkVisibility, 1200);
-            
+            window.addEventListener('scroll', revealOnScroll);
+            setTimeout(revealOnScroll, 200);
+            setTimeout(revealOnScroll, 600);
+            setTimeout(revealOnScroll, 1200);
+
             // ---------- CURSOR GLOW ----------
             const cursorGlow = document.getElementById('cursorGlow');
             document.addEventListener('mousemove', function(e) {
                 cursorGlow.style.left = e.clientX + 'px';
                 cursorGlow.style.top = e.clientY + 'px';
             });
-            
-            // ---------- PARALLAX EFFECT ----------
-            const video = document.querySelector('.video-background');
+
+            // ---------- PARALLAX ----------
+            const video = document.querySelector('.video-layer');
             window.addEventListener('scroll', function() {
                 const scrollY = window.scrollY;
                 const maxScroll = document.body.scrollHeight - window.innerHeight;
                 const scrollPercent = scrollY / maxScroll;
-                video.style.transform = `translateY(${scrollPercent * 15}px)`;
+                video.style.transform = `translateY(${scrollPercent * 18}px)`;
             });
+
+            // ---------- BACKGROUND MUSIC (FADE IN SLOWLY) ----------
+            const bgMusic = new Audio('Assets/Musics/audio1.mp3');
+            bgMusic.loop = true;
+            bgMusic.volume = 0;
             
-            // ---------- AMBIENT AUDIO (FADE IN SLOWLY) ----------
-            const ambientAudio = new Audio('assets/audio/ambience1.mp3');
-            ambientAudio.loop = true;
-            ambientAudio.volume = 0;
+            let musicStarted = false;
             
-            let audioStarted = false;
-            
-            function initAudio() {
-                if (audioStarted) return;
-                audioStarted = true;
+            function initMusic() {
+                if (musicStarted) return;
+                musicStarted = true;
                 
-                ambientAudio.play().catch(e => {
-                    // Autoplay prevented — start on first interaction
-                    document.addEventListener('click', function startAudio() {
-                        ambientAudio.play();
-                        document.removeEventListener('click', startAudio);
+                bgMusic.play().catch(e => {
+                    console.log('autoplay prevented — will start on interaction');
+                    document.addEventListener('click', function startMusic() {
+                        bgMusic.play();
+                        document.removeEventListener('click', startMusic);
                     }, { once: true });
                 });
                 
-                // Fade in over 10 seconds
                 let vol = 0;
                 const fadeInterval = setInterval(() => {
-                    if (vol < 0.12) {
-                        vol += 0.002;
-                        ambientAudio.volume = vol;
+                    if (vol < 0.18) {
+                        vol += 0.003;
+                        bgMusic.volume = vol;
                     } else {
                         clearInterval(fadeInterval);
                     }
                 }, 200);
             }
             
-            setTimeout(initAudio, 2000);
+            setTimeout(initMusic, 2000);
             
-            // Stop audio when tab inactive
+            // Pause when tab inactive
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden) {
-                    ambientAudio.pause();
+                    bgMusic.pause();
                 } else {
-                    ambientAudio.play();
+                    bgMusic.play();
                 }
             });
+
+            // ---------- LIVING ICON — MUTE SEQUENCE ----------
+            const livingIcon = document.getElementById('livingIcon');
+            const blackScreen = document.getElementById('blackScreen');
+            const blackScreenMessage = document.getElementById('blackScreenMessage');
             
-            // ---------- AUDIO STATUS (FADE OUT) ----------
-            const audioStatus = document.getElementById('audioStatus');
-            setTimeout(() => {
-                audioStatus.style.opacity = '0.15';
-            }, 6000);
+            let clickCount = parseInt(localStorage.getItem('muteClickCount') || '0');
             
+            function playMuteSound(index) {
+                // Pause background music
+                bgMusic.pause();
+                
+                // Play corresponding mute sound
+                const muteSound = new Audio(`Assets/Mute/${index}.mp3`);
+                muteSound.volume = 0.4;
+                muteSound.play();
+                
+                // Effects based on click count
+                const body = document.body;
+                
+                switch(index) {
+                    case 1:
+                        body.classList.add('shake-effect');
+                        setTimeout(() => body.classList.remove('shake-effect'), 400);
+                        break;
+                    case 2:
+                        body.classList.add('shake-effect');
+                        setTimeout(() => body.classList.remove('shake-effect'), 500);
+                        // subtle distortion
+                        document.querySelector('.video-layer').style.filter = 'brightness(0.6) contrast(1.4) hue-rotate(5deg)';
+                        setTimeout(() => {
+                            document.querySelector('.video-layer').style.filter = 'brightness(0.65) contrast(1.2) hue-rotate(0deg)';
+                        }, 600);
+                        break;
+                    case 3:
+                        body.classList.add('glitch-effect');
+                        setTimeout(() => body.classList.remove('glitch-effect'), 500);
+                        // text flicker
+                        textBlocks.forEach(block => {
+                            block.style.opacity = '0.7';
+                            setTimeout(() => { block.style.opacity = ''; }, 200);
+                        });
+                        break;
+                    case 4:
+                        body.classList.add('red-bleed');
+                        document.querySelector('.overlay-dark').style.background = 'radial-gradient(circle at 50% 50%, rgba(20,5,5,0.8) 0%, rgba(3,3,3,0.95) 100%)';
+                        body.classList.add('shake-effect');
+                        setTimeout(() => {
+                            body.classList.remove('red-bleed');
+                            document.querySelector('.overlay-dark').style.background = 'radial-gradient(circle at 50% 50%, rgba(5,5,5,0.75) 0%, rgba(3,3,3,0.9) 100%)';
+                            body.classList.remove('shake-effect');
+                        }, 800);
+                        break;
+                    case 5:
+                        // Full glitch + black screen
+                        body.classList.add('glitch-effect');
+                        document.querySelector('.video-layer').style.filter = 'brightness(0.4) contrast(1.8) hue-rotate(15deg)';
+                        document.querySelector('.overlay-dark').style.background = '#000';
+                        
+                        setTimeout(() => {
+                            document.body.style.opacity = '0';
+                        }, 500);
+                        
+                        setTimeout(() => {
+                            document.body.style.opacity = '0';
+                            blackScreen.style.display = 'flex';
+                            setTimeout(() => {
+                                blackScreen.style.opacity = '1';
+                            }, 100);
+                        }, 800);
+                        
+                        muteSound.addEventListener('ended', function() {
+                            setTimeout(() => {
+                                blackScreenMessage.textContent = 'Try again… carefully.';
+                                blackScreenMessage.style.opacity = '1';
+                            }, 10000);
+                        });
+                        break;
+                }
+                
+                muteSound.addEventListener('ended', function() {
+                    // Resume background music if not at final stage
+                    if (index < 5) {
+                        bgMusic.play();
+                    }
+                });
+            }
+            
+            livingIcon.addEventListener('click', function() {
+                clickCount = (clickCount % 5) + 1;
+                localStorage.setItem('muteClickCount', clickCount);
+                playMuteSound(clickCount);
+            });
+
             // ---------- NAVIGATION ----------
             const nextBtn = document.getElementById('nextBtn');
             
             nextBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 
-                // Disable button
                 this.disabled = true;
                 this.textContent = 'turning...';
                 
-                // Fade out audio
+                // Fade out music
                 const fadeOut = setInterval(() => {
-                    if (ambientAudio.volume > 0.01) {
-                        ambientAudio.volume -= 0.01;
+                    if (bgMusic.volume > 0.01) {
+                        bgMusic.volume -= 0.01;
                     } else {
                         clearInterval(fadeOut);
-                        ambientAudio.pause();
+                        bgMusic.pause();
                     }
                 }, 20);
                 
-                // Fade to black transition
+                // Transition
                 document.body.style.opacity = '0';
-                document.body.style.transition = 'opacity 0.4s ease';
                 
                 setTimeout(() => {
-                    window.location.href = '2.html';
+                    window.location.href = 'page2.html';
                 }, 400);
             });
-            
-            // ---------- KEYBOARD NAVIGATION ----------
+
+            // ---------- KEYBOARD ----------
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'ArrowRight' || e.key === ' ') {
                     e.preventDefault();
                     if (!nextBtn.disabled) {
                         nextBtn.click();
                     }
+                } else if (e.key === 'm' || e.key === 'M') {
+                    e.preventDefault();
+                    livingIcon.click();
                 }
             });
-            
+
             // ---------- VIDEO FALLBACK ----------
             const videoEl = document.querySelector('video');
             videoEl.addEventListener('error', function() {
                 this.style.display = 'none';
             });
-            
-            // ---------- SUBTLE FLICKER (OCCASIONAL) ----------
+
+            // ---------- SUBTLE FLICKER ----------
             setInterval(() => {
-                if (Math.random() < 0.08) {
+                if (Math.random() < 0.07) {
                     document.body.style.animation = 'none';
                     setTimeout(() => {
-                        document.body.style.animation = 'flicker 12s infinite';
-                    }, 20);
+                        document.body.style.animation = 'subtle-flicker 20s infinite';
+                    }, 30);
                 }
-            }, 8000);
+            }, 9000);
         });
     </script>
 </body>
