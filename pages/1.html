@@ -3,295 +3,494 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 1 — The Archive Opens</title>
+    <title>The Rule of the Third Reflection — Page 1</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Georgia', serif;
-            background: #000;
-            color: #e8e8e8;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            position: fixed;
-            touch-action: manipulation;
-            -webkit-font-smoothing: antialiased;
+            background: #030303;
+            color: #e0e0e0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
         }
 
-        /* Video background */
-        #background-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.4;
-            z-index: 1;
-        }
-
-        .video-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2;
-        }
-
-        /* Grain effect */
-        .grain-overlay {
+        /* Persistent UI Elements */
+        .grain {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 3;
-            opacity: 0.02;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: 100;
+            opacity: 0.03;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc0IiBudW1PY3RhdmVzPSIzIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2YpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=');
         }
 
-        /* Main content */
-        .content-container {
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.4) 100%);
+        }
+
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(80,80,100,0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 98;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            z-index: 0;
+            filter: brightness(0.7) contrast(1.2);
+        }
+
+        /* Overlay for readability */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 3, 3, 0.7);
+            z-index: 1;
+        }
+
+        /* Content Container */
+        .content {
             position: relative;
-            z-index: 4;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: clamp(2rem, 5vw, 4rem);
+            z-index: 10;
             max-width: 800px;
             margin: 0 auto;
-            opacity: 0;
-            animation: fadeIn 3s ease-out 1s forwards;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        .page-number {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            font-size: 0.9rem;
-            color: #555;
-            letter-spacing: 1px;
-        }
-
-        .story-content {
-            flex: 1;
+            padding: 4rem 2rem;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            line-height: 1.8;
-            font-size: clamp(1.1rem, 3vw, 1.3rem);
+        }
+
+        /* Page Number */
+        .page-number {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            font-size: 0.8rem;
+            color: #555;
+            letter-spacing: 2px;
+            z-index: 50;
+            font-family: monospace;
+        }
+
+        /* Story Text with Scroll Reveal */
+        .story-section {
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .story-section.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .story-text {
             margin-bottom: 2rem;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: textAppear 2s ease-out forwards;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
-        .story-text:nth-child(1) { animation-delay: 1.5s; }
-        .story-text:nth-child(2) { animation-delay: 3s; }
-        .story-text:nth-child(3) { animation-delay: 4.5s; }
-        .story-text:nth-child(4) { animation-delay: 6s; }
-
-        @keyframes textAppear {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .archive-note {
+        .story-text.emphasis {
+            color: #b0b0b0;
             font-style: italic;
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #333;
-            opacity: 0;
-            animation: fadeIn 2s ease-out 7s forwards;
+            border-left: 2px solid #444;
+            padding-left: 1.5rem;
         }
 
         /* Navigation */
         .navigation {
-            margin-top: 3rem;
+            margin-top: 4rem;
             display: flex;
             justify-content: flex-end;
             opacity: 0;
-            animation: fadeIn 2s ease-out 8s forwards;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .navigation.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .next-button {
-            padding: 0.8rem 2rem;
             background: transparent;
-            color: #aaa;
-            border: 1px solid #444;
-            border-radius: 1px;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 0.8rem 2.5rem;
             font-size: 1rem;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.5s ease;
+            letter-spacing: 3px;
             text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            font-family: 'Georgia', serif;
         }
 
         .next-button:hover {
+            border-color: #888;
             color: #fff;
-            border-color: #666;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.03);
         }
 
         .next-button::after {
             content: '→';
-            margin-left: 0.5rem;
+            margin-left: 0.8rem;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
         }
 
         .next-button:hover::after {
             opacity: 1;
         }
 
-        /* Progress indicator */
-        .progress-bar {
+        /* Return Message */
+        .return-message {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: #222;
-            z-index: 5;
+            bottom: 2rem;
+            left: 2rem;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333;
+            padding: 0.8rem 1.5rem;
+            color: #aaa;
+            font-size: 0.9rem;
+            font-style: italic;
+            letter-spacing: 1px;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            cursor: pointer;
+            border-radius: 2px;
+            backdrop-filter: blur(5px);
         }
 
-        .progress-fill {
-            height: 100%;
-            background: #666;
-            width: 20%; /* Page 1 of 5 */
-            transition: width 0.5s ease;
+        .return-message.visible {
+            opacity: 1;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .content-container {
-                padding: 1.5rem;
-            }
-            
-            .page-number {
-                top: 1rem;
-                left: 1rem;
-            }
+        .return-message:hover {
+            border-color: #555;
+            color: #ddd;
         }
 
-        /* Flicker effect */
+        /* Flicker Animation */
         @keyframes subtleFlicker {
             0%, 100% { opacity: 1; }
             95% { opacity: 0.98; }
         }
 
         body {
-            animation: subtleFlicker 20s infinite;
+            animation: subtleFlicker 10s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content { padding: 3rem 1.5rem; }
+            .page-number { top: 1rem; left: 1rem; }
+            .story-text { font-size: 1.1rem; }
+            .return-message { bottom: 1rem; left: 1rem; }
+        }
+
+        /* Parallax effect */
+        .parallax {
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Audio indicator */
+        .audio-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            font-size: 0.7rem;
+            color: #444;
+            letter-spacing: 1px;
+            z-index: 50;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .audio-indicator { bottom: 1rem; right: 1rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Video background -->
-    <video id="background-video" autoplay muted loop playsinline>
-        <source src="Assets/background1.mp4" type="video/mp4">
+    <!-- Video Background -->
+    <video class="video-background parallax" autoplay muted loop playsinline>
+        <source src="assets/videos/page1.mp4" type="video/mp4">
     </video>
+    <div class="overlay"></div>
     
-    <div class="video-overlay"></div>
-    <div class="grain-overlay"></div>
+    <!-- Persistent Effects -->
+    <div class="grain"></div>
+    <div class="vignette"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
     
-    <!-- Progress bar -->
-    <div class="progress-bar">
-        <div class="progress-fill"></div>
+    <!-- Page Number -->
+    <div class="page-number">I / L</div>
+    
+    <!-- Audio Indicator -->
+    <div class="audio-indicator" id="audioIndicator">ambience — present</div>
+    
+    <!-- Return Message (appears if returning to this page) -->
+    <div class="return-message" id="returnMessage">
+        No… go back.
     </div>
     
-    <!-- Main content -->
-    <div class="content-container">
-        <div class="page-number">PAGE 1/50</div>
-        
-        <div class="story-content">
+    <!-- Main Content -->
+    <div class="content">
+        <div class="story-section" id="section1">
             <div class="story-text">
-                The archive opens. A collection of pages, recovered from various sources over several years.
-            </div>
-            
-            <div class="story-text">
-                Some were found in abandoned research facilities. Others appeared in private collections, their origins unclear. A few were shared anonymously, always with the same instruction: "Continue the sequence."
-            </div>
-            
-            <div class="story-text">
-                Together, they form what we now call the 50 Pages of Fright. Not because they contain explicit horror, but because of the pattern that emerges when read in order. A slow dawning. A gradual understanding.
-            </div>
-            
-            <div class="story-text">
-                This is page one. The beginning of that pattern.
-            </div>
-            
-            <div class="archive-note">
-                Archived material, classification level: OPEN ACCESS<br>
-                Compiled and digitized for preservation
+                You remember the story your grandmother told you, once, in the space between sleep and waking.
             </div>
         </div>
         
-        <div class="navigation">
-            <button class="next-button" onclick="navigateToNext()">Continue</button>
+        <div class="story-section" id="section2">
+            <div class="story-text">
+                She called it <em>The Rule of the Third Reflection</em>.
+            </div>
+        </div>
+        
+        <div class="story-section" id="section3">
+            <div class="story-text">
+                "Mirrors," she said, "are not what you think. The first reflection shows you as you are. The second shows you as others see you. But the third..."
+            </div>
+        </div>
+        
+        <div class="story-section" id="section4">
+            <div class="story-text emphasis">
+                She never finished the sentence. She only looked past you, toward the darkened hallway, and said you'd understand when you were older.
+            </div>
+        </div>
+        
+        <div class="story-section" id="section5">
+            <div class="story-text">
+                You are older now.
+            </div>
+        </div>
+        
+        <div class="navigation" id="navigation">
+            <button class="next-button" id="nextBtn">Continue</button>
         </div>
     </div>
 
     <script>
-        // Video fallback
-        const video = document.getElementById('background-video');
-        video.addEventListener('error', function() {
-            document.body.style.background = '#0a0a0a';
-            this.style.display = 'none';
-        });
+        // ============================================
+        // PAGE 1 — THE RULE OF THE THIRD REFLECTION
+        // ============================================
         
-        // Navigation
-        function navigateToNext() {
-            const button = document.querySelector('.next-button');
-            button.disabled = true;
-            button.textContent = 'Turning page...';
+        document.addEventListener('DOMContentLoaded', function() {
             
-            document.querySelector('.content-container').style.opacity = '0';
-            document.querySelector('.content-container').style.transition = 'opacity 1s ease';
+            // ---------- LOCAL STORAGE ----------
+            // Save current page as last visited
+            localStorage.setItem('lastPage', 'pages/1.html');
             
-            setTimeout(() => {
-                window.location.href = '2.html';
-            }, 1000);
-        }
-        
-        // Progress fill animation
-        setTimeout(() => {
-            document.querySelector('.progress-fill').style.width = '20%';
-        }, 500);
-        
-        // Add occasional subtle flicker
-        setInterval(() => {
-            if (Math.random() < 0.1) {
-                document.body.style.animation = 'none';
+            // Check if returning to this page (was on a later page)
+            const previousPage = localStorage.getItem('previousPage');
+            const returnMessage = document.getElementById('returnMessage');
+            
+            if (previousPage && parseInt(previousPage.split('.')[0]) > 1) {
                 setTimeout(() => {
-                    document.body.style.animation = 'subtleFlicker 20s infinite';
-                }, 100);
+                    returnMessage.classList.add('visible');
+                }, 2000);
+                
+                // Hide after 8 seconds
+                setTimeout(() => {
+                    returnMessage.classList.remove('visible');
+                }, 10000);
+                
+                // Click to go back
+                returnMessage.addEventListener('click', function() {
+                    const lastPage = localStorage.getItem('lastPage');
+                    if (lastPage && lastPage !== 'pages/1.html') {
+                        window.location.href = lastPage;
+                    }
+                });
             }
-        }, 10000);
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                navigateToNext();
+            
+            // Store for return message logic
+            localStorage.setItem('previousPage', 'pages/1.html');
+            
+            
+            // ---------- SCROLL REVEAL ----------
+            const sections = document.querySelectorAll('.story-section');
+            const navigation = document.getElementById('navigation');
+            
+            function checkVisibility() {
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    const isVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+                    
+                    if (isVisible) {
+                        section.classList.add('visible');
+                    }
+                });
+                
+                // Show navigation when near bottom
+                const lastSection = sections[sections.length - 1];
+                if (lastSection) {
+                    const rect = lastSection.getBoundingClientRect();
+                    if (rect.top < window.innerHeight * 0.6) {
+                        navigation.classList.add('visible');
+                    }
+                }
             }
+            
+            window.addEventListener('scroll', checkVisibility);
+            window.addEventListener('resize', checkVisibility);
+            
+            // Initial check
+            setTimeout(checkVisibility, 100);
+            setTimeout(checkVisibility, 500);
+            setTimeout(checkVisibility, 1000);
+            
+            
+            // ---------- CURSOR GLOW ----------
+            const cursorGlow = document.getElementById('cursorGlow');
+            
+            document.addEventListener('mousemove', function(e) {
+                cursorGlow.style.left = e.clientX + 'px';
+                cursorGlow.style.top = e.clientY + 'px';
+            });
+            
+            
+            // ---------- PARALLAX EFFECT ----------
+            const video = document.querySelector('.video-background');
+            
+            window.addEventListener('scroll', function() {
+                const scrollY = window.scrollY;
+                const maxScroll = document.body.scrollHeight - window.innerHeight;
+                const scrollPercent = scrollY / maxScroll;
+                
+                video.style.transform = `translateY(${scrollPercent * 20}px)`;
+            });
+            
+            
+            // ---------- AMBIENT AUDIO ----------
+            const audio = new Audio('assets/audio/ambience1.mp3');
+            audio.loop = true;
+            audio.volume = 0;
+            
+            // Fade in audio slowly
+            let audioStarted = false;
+            
+            function startAudio() {
+                if (audioStarted) return;
+                audioStarted = true;
+                
+                audio.play().catch(e => {
+                    console.log('Audio autoplay prevented — will start on interaction');
+                    document.addEventListener('click', function initAudio() {
+                        audio.play();
+                        document.removeEventListener('click', initAudio);
+                    }, { once: true });
+                });
+                
+                let volume = 0;
+                const fadeInterval = setInterval(() => {
+                    if (volume < 0.15) {
+                        volume += 0.005;
+                        audio.volume = volume;
+                    } else {
+                        clearInterval(fadeInterval);
+                    }
+                }, 200);
+            }
+            
+            // Start audio after delay
+            setTimeout(startAudio, 2000);
+            
+            // Pause when tab inactive
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    audio.pause();
+                } else {
+                    audio.play();
+                }
+            });
+            
+            
+            // ---------- AUDIO INDICATOR ----------
+            const audioIndicator = document.getElementById('audioIndicator');
+            setTimeout(() => {
+                audioIndicator.style.opacity = '0.3';
+            }, 5000);
+            
+            
+            // ---------- NAVIGATION ----------
+            const nextBtn = document.getElementById('nextBtn');
+            
+            nextBtn.addEventListener('click', function() {
+                // Fade out animation
+                document.body.style.opacity = '0';
+                document.body.style.transition = 'opacity 0.4s ease';
+                
+                // Fade out audio
+                const fadeOut = setInterval(() => {
+                    if (audio.volume > 0.01) {
+                        audio.volume -= 0.01;
+                    } else {
+                        clearInterval(fadeOut);
+                        audio.pause();
+                    }
+                }, 20);
+                
+                setTimeout(() => {
+                    window.location.href = '2.html';
+                }, 400);
+            });
+            
+            
+            // ---------- KEYBOARD NAVIGATION ----------
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    nextBtn.click();
+                }
+            });
+            
+            
+            // ---------- VIDEO FALLBACK ----------
+            const videoElement = document.querySelector('video');
+            videoElement.addEventListener('error', function() {
+                this.style.display = 'none';
+            });
         });
     </script>
 </body>
