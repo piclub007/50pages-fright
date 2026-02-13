@@ -3,378 +3,644 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page 2 — Pattern Recognition</title>
+    <title>the rule of the third reflection — 2/50</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Georgia', serif;
-            background: #000;
-            color: #e8e8e8;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            position: fixed;
-            touch-action: manipulation;
-            -webkit-font-smoothing: antialiased;
+            background: #030303;
+            color: #e0e0e0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            transition: opacity 0.4s ease;
+            opacity: 1;
         }
 
-        /* Video background */
-        #background-video {
+        .video-layer {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.4;
-            z-index: 1;
-            filter: brightness(0.7);
+            opacity: 0.26;
+            z-index: 0;
+            filter: brightness(0.62) contrast(1.25);
+            will-change: transform;
         }
 
-        .video-overlay {
+        .overlay-dark {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 2;
+            background: radial-gradient(circle at 50% 50%, rgba(5,5,5,0.78) 0%, rgba(3,3,3,0.92) 100%);
+            z-index: 1;
         }
 
-        /* Grain effect */
-        .grain-overlay {
+        .grain {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 3;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: 100;
+            opacity: 0.026;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc0IiBudW1PY3RhdmVzPSIzIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2YpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=');
         }
 
-        /* Main content */
-        .content-container {
-            position: relative;
-            z-index: 4;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: clamp(2rem, 5vw, 4rem);
-            max-width: 800px;
-            margin: 0 auto;
-            opacity: 0;
-            animation: fadeIn 2s ease-out 0.5s forwards;
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.6) 130%);
         }
 
-        @keyframes fadeIn {
-            to { opacity: 1; }
+        .cursor-glow {
+            position: fixed;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(85, 75, 75, 0.06) 0%, transparent 80%);
+            pointer-events: none;
+            z-index: 98;
+            transform: translate(-50%, -50%);
         }
 
         .page-number {
-            position: absolute;
+            position: fixed;
             top: 2rem;
             left: 2rem;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #555;
-            letter-spacing: 1px;
+            letter-spacing: 3px;
+            z-index: 70;
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
         }
 
-        .story-content {
-            flex: 1;
+        .living-icon {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #555;
+            background: rgba(10,10,10,0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.3s ease;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .living-icon:hover {
+            border-color: #7a7a7a;
+            background: rgba(30,25,25,0.7);
+            color: #ddd;
+        }
+
+        .black-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+
+        .black-screen-message {
+            color: #333;
+            font-size: 1.1rem;
+            font-style: italic;
+            letter-spacing: 3px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            opacity: 0;
+            transition: opacity 5s ease;
+        }
+
+        .return-message {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: rgba(5,5,5,0.9);
+            border: 1px solid #444;
+            padding: 0.9rem 1.8rem;
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            font-style: italic;
+            letter-spacing: 2px;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            font-family: 'Courier New', monospace;
+        }
+
+        .return-message.visible {
+            opacity: 0.9;
+        }
+
+        .return-message:hover {
+            border-color: #6a6a6a;
+            color: #e0e0e0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 50;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 7rem 2rem 10rem;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            line-height: 1.8;
-            font-size: clamp(1.1rem, 3vw, 1.3rem);
         }
 
-        .story-text {
-            margin-bottom: 2rem;
+        .text-block {
+            margin-bottom: 4.5rem;
             opacity: 0;
-            transform: translateY(20px);
-            animation: textAppear 2s ease-out forwards;
+            transform: translateY(25px);
+            transition: opacity 0.9s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.9s cubic-bezier(0.2, 0.9, 0.3, 1);
         }
 
-        .story-text:nth-child(1) { animation-delay: 1s; }
-        .story-text:nth-child(2) { animation-delay: 2.5s; }
-        .story-text:nth-child(3) { animation-delay: 4s; }
-        .story-text:nth-child(4) { animation-delay: 5.5s; }
-        .story-text:nth-child(5) { animation-delay: 7s; }
+        .text-block.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-        @keyframes textAppear {
-            to { opacity: 1; transform: translateY(0); }
+        .text-block p {
+            margin-bottom: 1.8rem;
+            text-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .text-block .italic {
+            font-style: italic;
+            color: #c0c0c0;
+            border-left: 2px solid #4a4a4a;
+            padding-left: 1.5rem;
         }
 
         .witness-note {
+            margin: 2.5rem 0;
+            padding: 1.5rem 2rem;
+            border-left: 2px solid #5a5a5a;
+            background: rgba(20,20,20,0.3);
+            font-size: 1rem;
+            color: #b8b8b8;
             font-style: italic;
-            color: #888;
-            margin-top: 2rem;
-            padding: 1rem;
-            border-left: 2px solid #444;
-            font-size: 0.95rem;
-            opacity: 0;
-            animation: fadeIn 2s ease-out 8.5s forwards;
         }
 
-        /* Navigation */
         .navigation {
             margin-top: 3rem;
             display: flex;
             justify-content: space-between;
-            align-items: center;
             opacity: 0;
-            animation: fadeIn 2s ease-out 9s forwards;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .navigation.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .nav-button {
-            padding: 0.8rem 2rem;
             background: transparent;
-            color: #aaa;
-            border: 1px solid #444;
-            border-radius: 1px;
-            font-size: 1rem;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.5s ease;
+            border: 1px solid #5a5a5a;
+            color: #d0d0d0;
+            padding: 0.8rem 2rem;
+            font-size: 0.9rem;
+            letter-spacing: 3px;
             text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
         }
 
         .nav-button:hover {
+            border-color: #888;
             color: #fff;
-            border-color: #666;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255,255,255,0.02);
         }
 
         .prev-button::before {
-            content: '← ';
+            content: '←';
+            margin-right: 0.6rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .prev-button:hover::before {
+            opacity: 1;
         }
 
         .next-button::after {
-            content: ' →';
+            content: '→';
+            margin-left: 0.6rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        /* Progress indicator */
-        .progress-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: #222;
-            z-index: 5;
+        .next-button:hover::after {
+            opacity: 1;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: #666;
-            width: 40%; /* Page 2 of 5 */
-            transition: width 0.5s ease;
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            20% { transform: translate(2px, -1px); }
+            40% { transform: translate(-2px, 1px); }
+            60% { transform: translate(1px, -1px); }
+            80% { transform: translate(-1px, 1px); }
+            100% { transform: translate(0,0); }
         }
 
-        /* Audio indicator */
-        .audio-indicator {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            font-size: 0.8rem;
-            color: #444;
-            opacity: 0.5;
-            z-index: 6;
+        .shake-effect {
+            animation: shake 0.3s ease;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .content-container {
-                padding: 1.5rem;
-            }
-            
-            .page-number {
-                top: 1rem;
-                left: 1rem;
-            }
-            
-            .navigation {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .audio-indicator {
-                bottom: 1rem;
-                right: 1rem;
-            }
+        @keyframes glitch {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            20% { transform: translate(-2px, 1px); filter: hue-rotate(5deg); }
+            40% { transform: translate(2px, -1px); filter: hue-rotate(-5deg); }
+            60% { transform: translate(-1px, 2px); filter: hue-rotate(3deg); }
+            80% { transform: translate(1px, -2px); filter: hue-rotate(-3deg); }
+            100% { transform: translate(0); filter: hue-rotate(0deg); }
         }
 
-        /* Breathing effect */
-        @keyframes breathing {
+        .glitch-effect {
+            animation: glitch 0.4s ease;
+        }
+
+        .red-bleed {
+            box-shadow: inset 0 0 30px rgba(80, 20, 20, 0.3);
+            transition: box-shadow 0.5s ease;
+        }
+
+        @keyframes subtle-flicker {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.98; }
+            95% { opacity: 0.97; }
         }
 
         body {
-            animation: breathing 10s infinite ease-in-out;
+            animation: subtle-flicker 22s infinite;
+        }
+
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .parallax {
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0.3, 1);
+        }
+
+        @media (max-width: 768px) {
+            .content { padding: 6rem 1.8rem 8rem; }
+            .page-number { top: 1.5rem; left: 1.5rem; }
+            .living-icon { top: 1.5rem; right: 1.5rem; }
+            .return-message { bottom: 1.5rem; left: 1.5rem; }
+            .text-block p { font-size: 1.1rem; }
+            .navigation { flex-direction: column; gap: 1rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Audio for atmosphere -->
-    <audio id="ambient-audio" loop>
-        <source src="Assets/ambient2.mp3" type="audio/mpeg">
-    </audio>
-    
-    <!-- Video background -->
-    <video id="background-video" autoplay muted loop playsinline>
-        <source src="Assets/background2.mp4" type="video/mp4">
+    <video class="video-layer parallax" autoplay muted loop playsinline>
+        <source src="Assets/Videos/back2.mp4" type="video/mp4">
     </video>
-    
-    <div class="video-overlay"></div>
-    <div class="grain-overlay"></div>
-    
-    <!-- Progress bar -->
-    <div class="progress-bar">
-        <div class="progress-fill"></div>
+    <div class="overlay-dark"></div>
+
+    <div class="grain"></div>
+    <div class="vignette"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <div class="page-number">2/50</div>
+
+    <div class="living-icon" id="livingIcon">
+        <span>●</span>
     </div>
-    
-    <!-- Audio indicator -->
-    <div class="audio-indicator" id="audio-indicator">Ambience: Loading...</div>
-    
-    <!-- Main content -->
-    <div class="content-container">
-        <div class="page-number">PAGE 2/50</div>
-        
-        <div class="story-content">
-            <div class="story-text">
-                The first pattern emerges in witness reports from different decades, different countries. Always the same details, never communicated between witnesses.
-            </div>
-            
-            <div class="story-text">
-                They speak of a presence that isn't seen, but felt in the stillness between moments. A quiet that has weight. A silence that listens.
-            </div>
-            
-            <div class="story-text">
-                The accounts describe a gradual awareness that develops over weeks or months. A sense of being observed during solitary activities: reading late at night, working alone, waking before dawn.
-            </div>
-            
-            <div class="story-text">
-                No physical manifestation. No voices. Just the growing certainty that something is attending. Waiting. Learning the patterns of a life.
-            </div>
-            
-            <div class="story-text">
-                The witnesses never report harm. Only observation. Only presence. Only the quiet.
-            </div>
-            
+
+    <div class="black-screen" id="blackScreen">
+        <div class="black-screen-message" id="blackScreenMessage"></div>
+    </div>
+
+    <div class="return-message" id="returnMessage">
+        Noh, Go back...
+    </div>
+
+    <div class="content">
+        <div class="text-block">
+            <p>After she died, you found her mirror. It wasn't in her will. It wasn't mentioned. It was simply there, in the attic, wrapped in cloth that had once been white.</p>
+        </div>
+
+        <div class="text-block">
+            <p>You brought it home. Not because you believed in the old stories. Because it was hers, and she had looked into it every morning for sixty years.</p>
+        </div>
+
+        <div class="text-block">
+            <p class="italic">You hung it in your hallway. Across from another mirror.</p>
+        </div>
+
+        <div class="text-block">
+            <p>That was your first mistake. You didn't know the rule yet.</p>
+        </div>
+
+        <div class="text-block">
+            <p>Two mirrors facing each other create an infinite corridor of reflections. Each image smaller than the last. Each one slightly different, if you know how to look.</p>
+        </div>
+
+        <div class="text-block">
             <div class="witness-note">
-                "It doesn't feel malicious. Just... attentive. Like something learning how to be human by watching."<br>
-                — Excerpt from interview #47, 1998
+                "The third reflection is the first one that isn't you."<br>
+                — from her private journals, dated November 1989
             </div>
         </div>
-        
-        <div class="navigation">
-            <button class="nav-button prev-button" onclick="navigateToPrevious()">Previous</button>
-            <button class="nav-button next-button" onclick="navigateToNext()">Continue</button>
+
+        <div class="navigation" id="navigation">
+            <button class="nav-button prev-button" id="prevBtn">Previous</button>
+            <button class="nav-button next-button" id="nextBtn">Continue</button>
         </div>
     </div>
 
     <script>
-        // Video fallback
-        const video = document.getElementById('background-video');
-        video.addEventListener('error', function() {
-            document.body.style.background = '#0a0a0a';
-            this.style.display = 'none';
-        });
-        
-        // Ambient audio with delay
-        const audio = document.getElementById('ambient-audio');
-        const audioIndicator = document.getElementById('audio-indicator');
-        
-        setTimeout(() => {
-            audio.volume = 0.1;
-            audio.play().then(() => {
-                audioIndicator.textContent = "Ambience: Active";
+        document.addEventListener('DOMContentLoaded', function() {
+            localStorage.setItem('lastPage', 'pages/page2.html');
+
+            const previousPage = localStorage.getItem('previousPage');
+            const returnMessage = document.getElementById('returnMessage');
+
+            if (previousPage && parseInt(previousPage.split('/')[1].replace('page', '').split('.')[0]) > 2) {
                 setTimeout(() => {
-                    audioIndicator.style.opacity = '0';
-                }, 3000);
-            }).catch(error => {
-                audioIndicator.textContent = "Ambience: Muted";
+                    returnMessage.classList.add('visible');
+                }, 1800);
                 setTimeout(() => {
-                    audioIndicator.style.opacity = '0';
-                }, 3000);
-            });
-        }, 5000);
-        
-        // Navigation
-        function navigateToPrevious() {
-            document.querySelector('.content-container').style.opacity = '0';
-            document.querySelector('.content-container').style.transition = 'opacity 1s ease';
-            
-            setTimeout(() => {
-                window.location.href = '1.html';
-            }, 1000);
-        }
-        
-        function navigateToNext() {
-            const button = document.querySelector('.next-button');
-            button.disabled = true;
-            button.textContent = 'Turning page...';
-            
-            // Fade out audio
-            const fadeAudio = setInterval(() => {
-                if (audio.volume > 0.01) {
-                    audio.volume -= 0.01;
-                } else {
-                    clearInterval(fadeAudio);
-                    audio.pause();
+                    returnMessage.classList.remove('visible');
+                }, 9800);
+                returnMessage.addEventListener('click', function() {
+                    const lastPage = localStorage.getItem('lastPage');
+                    if (lastPage && lastPage !== 'pages/page2.html') {
+                        window.location.href = lastPage;
+                    }
+                });
+            }
+
+            localStorage.setItem('previousPage', 'pages/page2.html');
+
+            const textBlocks = document.querySelectorAll('.text-block');
+            const navigation = document.getElementById('navigation');
+
+            function revealOnScroll() {
+                textBlocks.forEach(block => {
+                    const rect = block.getBoundingClientRect();
+                    if (rect.top < window.innerHeight * 0.85 && rect.bottom > 0) {
+                        block.classList.add('visible');
+                    }
+                });
+
+                const lastBlock = textBlocks[textBlocks.length - 1];
+                if (lastBlock) {
+                    const rect = lastBlock.getBoundingClientRect();
+                    if (rect.top < window.innerHeight * 0.6) {
+                        navigation.classList.add('visible');
+                    }
                 }
-            }, 20);
-            
-            document.querySelector('.content-container').style.opacity = '0';
-            document.querySelector('.content-container').style.transition = 'opacity 1s ease';
-            
-            setTimeout(() => {
-                window.location.href = '3.html';
-            }, 1000);
-        }
-        
-        // Progress fill
-        setTimeout(() => {
-            document.querySelector('.progress-fill').style.width = '40%';
-        }, 500);
-        
-        // Add occasional text shimmer
-        setInterval(() => {
-            const texts = document.querySelectorAll('.story-text');
-            if (Math.random() < 0.05) {
-                const randomText = texts[Math.floor(Math.random() * texts.length)];
-                randomText.style.opacity = '0.8';
-                setTimeout(() => {
-                    randomText.style.opacity = '1';
+            }
+
+            window.addEventListener('scroll', revealOnScroll);
+            setTimeout(revealOnScroll, 200);
+            setTimeout(revealOnScroll, 600);
+
+            const cursorGlow = document.getElementById('cursorGlow');
+            document.addEventListener('mousemove', function(e) {
+                cursorGlow.style.left = e.clientX + 'px';
+                cursorGlow.style.top = e.clientY + 'px';
+            });
+
+            const video = document.querySelector('.video-layer');
+            window.addEventListener('scroll', function() {
+                const scrollY = window.scrollY;
+                const maxScroll = document.body.scrollHeight - window.innerHeight;
+                const scrollPercent = scrollY / maxScroll;
+                video.style.transform = `translateY(${scrollPercent * 16}px)`;
+            });
+
+            const bgMusic = new Audio('Assets/Musics/audio2.mp3');
+            bgMusic.loop = true;
+            bgMusic.volume = 0;
+
+            let musicStarted = false;
+
+            function initMusic() {
+                if (musicStarted) return;
+                musicStarted = true;
+                bgMusic.play().catch(e => {
+                    document.addEventListener('click', function startMusic() {
+                        bgMusic.play();
+                        document.removeEventListener('click', startMusic);
+                    }, { once: true });
+                });
+
+                let vol = 0;
+                const fadeInterval = setInterval(() => {
+                    if (vol < 0.2) {
+                        vol += 0.003;
+                        bgMusic.volume = vol;
+                    } else {
+                        clearInterval(fadeInterval);
+                    }
                 }, 200);
             }
-        }, 8000);
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowLeft') {
-                navigateToPrevious();
-            } else if (e.key === 'ArrowRight' || e.key === ' ') {
-                navigateToNext();
+
+            setTimeout(initMusic, 2200);
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    bgMusic.pause();
+                } else {
+                    bgMusic.play();
+                }
+            });
+
+            // ---------- LIVING ICON ----------
+            const livingIcon = document.getElementById('livingIcon');
+            const blackScreen = document.getElementById('blackScreen');
+            const blackScreenMessage = document.getElementById('blackScreenMessage');
+            
+            let clickCount = parseInt(localStorage.getItem('muteClickCount') || '0');
+            
+            function playMuteSound(index) {
+                bgMusic.pause();
+                const muteSound = new Audio(`Assets/Mute/${index}.mp3`);
+                muteSound.volume = 0.4;
+                muteSound.play();
+                
+                const body = document.body;
+                
+                switch(index) {
+                    case 1:
+                        body.classList.add('shake-effect');
+                        setTimeout(() => body.classList.remove('shake-effect'), 400);
+                        break;
+                    case 2:
+                        body.classList.add('shake-effect');
+                        setTimeout(() => body.classList.remove('shake-effect'), 500);
+                        document.querySelector('.video-layer').style.filter = 'brightness(0.6) contrast(1.4) hue-rotate(5deg)';
+                        setTimeout(() => {
+                            document.querySelector('.video-layer').style.filter = 'brightness(0.62) contrast(1.25) hue-rotate(0deg)';
+                        }, 600);
+                        break;
+                    case 3:
+                        body.classList.add('glitch-effect');
+                        setTimeout(() => body.classList.remove('glitch-effect'), 500);
+                        textBlocks.forEach(block => {
+                            block.style.opacity = '0.7';
+                            setTimeout(() => { block.style.opacity = ''; }, 200);
+                        });
+                        break;
+                    case 4:
+                        body.classList.add('red-bleed');
+                        document.querySelector('.overlay-dark').style.background = 'radial-gradient(circle at 50% 50%, rgba(20,5,5,0.8) 0%, rgba(3,3,3,0.95) 100%)';
+                        body.classList.add('shake-effect');
+                        setTimeout(() => {
+                            body.classList.remove('red-bleed');
+                            document.querySelector('.overlay-dark').style.background = 'radial-gradient(circle at 50% 50%, rgba(5,5,5,0.78) 0%, rgba(3,3,3,0.92) 100%)';
+                            body.classList.remove('shake-effect');
+                        }, 800);
+                        break;
+                    case 5:
+                        body.classList.add('glitch-effect');
+                        document.querySelector('.video-layer').style.filter = 'brightness(0.4) contrast(1.8) hue-rotate(15deg)';
+                        document.querySelector('.overlay-dark').style.background = '#000';
+                        
+                        setTimeout(() => {
+                            document.body.style.opacity = '0';
+                        }, 500);
+                        
+                        setTimeout(() => {
+                            document.body.style.opacity = '0';
+                            blackScreen.style.display = 'flex';
+                            setTimeout(() => {
+                                blackScreen.style.opacity = '1';
+                            }, 100);
+                        }, 800);
+                        
+                        muteSound.addEventListener('ended', function() {
+                            setTimeout(() => {
+                                blackScreenMessage.textContent = 'Try again… carefully.';
+                                blackScreenMessage.style.opacity = '1';
+                            }, 10000);
+                        });
+                        break;
+                }
+                
+                muteSound.addEventListener('ended', function() {
+                    if (index < 5) {
+                        bgMusic.play();
+                    }
+                });
             }
-        });
-        
-        // Pause audio when tab is hidden
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                audio.pause();
-            } else {
-                audio.play();
-            }
+            
+            livingIcon.addEventListener('click', function() {
+                clickCount = (clickCount % 5) + 1;
+                localStorage.setItem('muteClickCount', clickCount);
+                playMuteSound(clickCount);
+            });
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.addEventListener('click', function() {
+                document.body.style.opacity = '0';
+                const fadeOut = setInterval(() => {
+                    if (bgMusic.volume > 0.01) {
+                        bgMusic.volume -= 0.01;
+                    } else {
+                        clearInterval(fadeOut);
+                        bgMusic.pause();
+                    }
+                }, 20);
+                setTimeout(() => {
+                    window.location.href = 'page1.html';
+                }, 400);
+            });
+
+            nextBtn.addEventListener('click', function() {
+                this.disabled = true;
+                this.textContent = 'turning...';
+                document.body.style.opacity = '0';
+                const fadeOut = setInterval(() => {
+                    if (bgMusic.volume > 0.01) {
+                        bgMusic.volume -= 0.01;
+                    } else {
+                        clearInterval(fadeOut);
+                        bgMusic.pause();
+                    }
+                }, 20);
+                setTimeout(() => {
+                    window.location.href = 'page3.html';
+                }, 400);
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevBtn.click();
+                } else if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    if (!nextBtn.disabled) {
+                        nextBtn.click();
+                    }
+                } else if (e.key === 'm' || e.key === 'M') {
+                    e.preventDefault();
+                    livingIcon.click();
+                }
+            });
+
+            const videoEl = document.querySelector('video');
+            videoEl.addEventListener('error', function() {
+                this.style.display = 'none';
+            });
+
+            setInterval(() => {
+                if (Math.random() < 0.06) {
+                    document.body.style.animation = 'none';
+                    setTimeout(() => {
+                        document.body.style.animation = 'subtle-flicker 22s infinite';
+                    }, 30);
+                }
+            }, 10000);
         });
     </script>
 </body>
